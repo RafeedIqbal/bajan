@@ -27,6 +27,10 @@ Bhaijaan always answers out loud, and the **Conversation** box shows both sides 
 
 On Android, Chrome's **Add to Home screen** installs it with Bhaijaan's face as the app icon.
 
+**How to use** (ব্যবহারের নিয়ম) in the header, and on the home and sign-in pages, opens a step-by-step guide at `/guide`: the three ways to talk, calling family, language settings, the wake word, installing on a phone, troubleshooting and privacy. It is public, so testers can read it before signing in. The guide quotes on-screen labels from `lib/i18n.ts` (`{start}` → the Start button's words), and `npm test` checks each one exists.
+
+The layout adapts to the screen: one column on phones (avatar, Start, Get help and Repeat fit the first screen), and on computers the avatar and controls sit beside the conversation.
+
 Every page has **বাংলা / English** buttons at the top. They switch the on-screen text only (remembered in a cookie). Everyone, demo users included, can change their profile with the **Edit profile** button on the home page.
 
 Bhaijaan's *spoken* language is a profile setting: a 5-point slider from **Bangla only** through **Bangla preferred**, **Mix (follow me)** and **English preferred** to **English only**. New profiles default to Mix and the demo sample to Bangla preferred. The "preferred" settings switch only on whole sentences in the other language, never on a quick "OK" or "thank you". Bhaijaan never answers in a third language such as Hindi or Urdu. His first greeting follows the setting (Mix uses the screen language).
@@ -55,7 +59,7 @@ Open http://localhost:3000 and use **Try the demo**, or create an account. Local
 ### Checks
 
 ```bash
-npm test          # wake-word matcher, cost maths, transcript lines, AAA colour contrast (node:test)
+npm test          # wake-word matcher, cost maths, transcript lines, AAA colour contrast, guide labels (node:test)
 npm run test:db   # duplicate-call guard, call timeline, profile ownership (pgTAP, needs `supabase start`)
 npm run build     # type-check + production build
 ```

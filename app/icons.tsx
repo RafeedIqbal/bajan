@@ -66,3 +66,60 @@ export const Spinner = () => (
     <path d="M12 3a9 9 0 1 0 9 9" />
   </Icon>
 )
+
+export const QuestionIcon = () => (
+  <Icon>
+    <circle cx="12" cy="12" r="9.5" />
+    <path d="M9.4 9.3a2.7 2.7 0 0 1 5.2 1c0 1.8-2.6 2.4-2.6 4M12 17.6v.1" />
+  </Icon>
+)
+
+export const ArrowLeftIcon = () => (
+  <Icon>
+    <path d="M19 12H5M11 6l-6 6 6 6" />
+  </Icon>
+)
+
+export const ArrowRightIcon = () => (
+  <Icon>
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </Icon>
+)
+
+export const ChatIcon = () => (
+  <Icon>
+    <path d="M20.5 11.5a8 8 0 0 1-11.8 7L3.5 20l1.5-4.6a8 8 0 1 1 15.5-3.9z" />
+  </Icon>
+)
+
+export const UserIcon = () => (
+  <Icon>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </Icon>
+)
+
+export const SignOutIcon = () => (
+  <Icon>
+    <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l-4-4 4-4M6 12h10" />
+  </Icon>
+)
+
+export const ChevronIcon = () => (
+  <Icon className="icon chevron">
+    <path d="m6 9 6 6 6-6" />
+  </Icon>
+)
+
+export const AlertIcon = () => (
+  <Icon>
+    <path d="M12 3 2.5 20h19z" />
+    <path d="M12 10v4.5M12 17.4v.1" />
+  </Icon>
+)
+
+export const CheckIcon = () => (
+  <Icon>
+    <path d="m5 12.5 4.5 4.5L19 7.5" />
+  </Icon>
+)

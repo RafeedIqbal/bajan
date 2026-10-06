@@ -31,7 +31,8 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname
   // A network blip reaching Supabase Auth is not "signed out": let the page decide (it shows an error).
   const signedOut = !data?.claims && !isAuthRetryableFetchError(error)
-  if (signedOut && !['/login', '/auth', '/api'].some((p) => path.startsWith(p))) {
+  // The guide is public, so people can read how it works before signing in.
+  if (signedOut && !['/login', '/auth', '/api', '/guide'].some((p) => path.startsWith(p))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.search = ''
