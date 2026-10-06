@@ -3,7 +3,7 @@
 A Bangla voice assistant proof of concept for older adults who live alone. It is built from
 [`docs/Bangla_Voice_Assistant_MVP.md`](docs/Bangla_Voice_Assistant_MVP.md). It does three things:
 
-- holds a spoken Bangla conversation (Gemini Live, `gemini-3.8-live`)
+- holds a spoken conversation (Gemini Live, `gemini-3.8-live`) in Bangla, English or a mix: Bhaijaan replies in whatever language he's spoken to
 - answers from a small structured profile that each tester fills in when they first sign in
 - requests a call to one enrolled caregiver and shows the real status
 
@@ -12,9 +12,13 @@ Caregiver calls are **simulated**: no phone rings. Testers are asked to use made
 ## Ways to try it
 
 - **Try the demo** (login page): one click and no account. Each visitor gets a private anonymous account with a sample profile (রহিমা খাতুন, caregiver করিম).
-- **Create an account** with email + password or an emailed link. On first sign-in, an onboarding form asks for the profile; every field is optional, and **Use the sample profile** fills it in one click. Edit it later from the home page (প্রোফাইল → প্রোফাইল বদলান).
+- **Create an account** with email + password or an emailed link. On first sign-in, an onboarding form asks for the profile; every field is optional, and **Use the sample profile** fills it in one click. Edit it later with the **Edit profile** (প্রোফাইল বদলান) button on the home page.
 
 Without a family member on the profile, Get help explains that nobody can be called and points to 999, and no call is placed.
+
+Every page has **বাংলা / English** buttons at the top. They switch the on-screen text only (remembered in a cookie). Everyone, demo users included, can change their profile with the **Edit profile** button on the home page.
+
+Bhaijaan's *spoken* language is a profile setting: a 5-point slider from **Bangla only** through **Bangla preferred**, **Mix (follow me)** and **English preferred** to **English only**. New profiles default to Mix and the demo sample to Bangla preferred. The "preferred" settings switch only on whole sentences in the other language, never on a quick "OK" or "thank you". Bhaijaan never answers in a third language such as Hindi or Urdu. His first greeting follows the setting (Mix uses the screen language).
 
 ## Stack
 
@@ -133,6 +137,7 @@ Run these in Chrome on desktop and on Android, with the phone on loudspeaker abo
   - Going offline right after "yes" shows "checking" and then the real status.
   - Going offline for 5 s mid-talk shows reconnecting, then the conversation continues.
 - [ ] Help is never reported as acknowledged. After "answered", ask "ছেলে কি আসছে?" → the assistant says only that the call connected.
+- [ ] The spoken-language setting holds by voice. Try each slider position; under the "preferred" and "only" settings, answering "OK" or "Thank you" must not switch the language.
 - [ ] The male voice greets you after Start and after the wake word. Three silent minutes stop the session by itself. Repeat replays the last answer.
 - [ ] Accessibility: a keyboard-only run, TalkBack announcing call-status changes, 200% zoom, and a contrast check.
 - [ ] A 15-minute conversation, including at least one reconnect, stays coherent and its full cost is recorded below.

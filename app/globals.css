@@ -42,7 +42,8 @@ h2 {
   margin: 1.5rem 0 0.25rem;
 }
 
-button {
+button,
+a.button {
   font: inherit;
   min-height: 64px;
   padding: 0.5rem 1.25rem;
@@ -51,6 +52,32 @@ button {
   background: var(--bg);
   color: var(--fg);
   cursor: pointer;
+}
+
+a.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.lang-toggle {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 0.5rem 1rem 0;
+}
+
+.lang-toggle button {
+  min-height: 48px;
+  font-size: 1rem;
+}
+
+.lang-toggle button[aria-pressed='true'] {
+  background: var(--fg);
+  color: var(--bg);
 }
 
 button[aria-disabled='true'] {
@@ -92,6 +119,21 @@ textarea {
   font: inherit;
   border: 2px solid var(--fg);
   border-radius: 0.5rem;
+}
+
+input[type='range'] {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin: 0.25rem 0 0;
+  accent-color: var(--accent);
+}
+
+.scale-ends {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 input[type='checkbox'] {

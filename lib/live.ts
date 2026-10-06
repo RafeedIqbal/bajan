@@ -14,13 +14,23 @@ import {
 export type VoiceState = 'idle' | 'connecting' | 'listening' | 'speaking' | 'reconnecting' | 'error'
 export type ToolResult = Record<string, unknown>
 export type UsageTotals = { audioIn: number; textIn: number; audioOut: number; textOut: number; usd: number }
+// What went wrong, for the screen to word in its own language (lib/i18n.ts).
+export type VoiceError =
+  | 'offline'
+  | 'mic_denied'
+  | 'mic_missing'
+  | 'mic_busy'
+  | 'mic_ended'
+  | 'signed_out'
+  | 'no_profile'
+  | 'unavailable'
 
-type Token = { token: string; model: string; apiVersion: string; config: LiveConnectConfig }
+type Token = { token: string; model: string; apiVersion: string; config: LiveConnectConfig; greeting: string }
 type Events = {
   onState: (state: VoiceState) => void
   onUsage: (totals: UsageTotals) => void
   onToolResult: (name: string, result: ToolResult | null) => void // null: the server could not be reached
-  onError: (message: string) => void
+  onError: (error: VoiceError) => void
   onIdleStop: () => void
   onAudioBlocked: () => void
 }
@@ -36,7 +46,6 @@ const UNAVAILABLE: Record<string, string> = {
   get_profile: 'profile_unavailable: say you cannot read the records right now; do not guess.',
   check_help_status: 'status_unavailable: say you cannot check right now; do not guess the call status.',
 }
-const MSG_OFFLINE = 'সংযোগ হয়নি। ইন্টারনেট দেখে আবার "শুরু করুন" চাপুন।'
 
 // Mic samples -> clamped little-endian PCM16, posted every 960 samples (40 ms at 24 kHz).
 const CAPTURE_WORKLET = `
@@ -124,14 +133,14 @@ function toBase64(buffer: ArrayBuffer): string {
   return btoa(String.fromCharCode(...new Uint8Array(buffer)))
 }
 
-// Plain-language message for a failed start or reconnect.
-function failureMessage(e: unknown): string {
-  if (e instanceof Error && e.name === 'TokenError') return e.message
+// Why a start or reconnect failed.
+function failure(e: unknown): VoiceError {
+  if (e instanceof Error && e.name === 'TokenError') return e.message as VoiceError
   const name = e instanceof DOMException ? e.name : ''
-  if (name === 'NotAllowedError') return 'মাইক্রোফোন চালুর অনুমতি দিন, তারপর আবার "শুরু করুন" চাপুন।'
-  if (name === 'NotFoundError') return 'কোনো মাইক্রোফোন পাওয়া যায়নি।'
-  if (name === 'NotReadableError') return 'মাইক্রোফোন এখন অন্য কোথাও ব্যবহার হচ্ছে।'
-  return MSG_OFFLINE
+  if (name === 'NotAllowedError') return 'mic_denied'
+  if (name === 'NotFoundError') return 'mic_missing'
+  if (name === 'NotReadableError') return 'mic_busy'
+  return 'offline'
 }
 
 export class LiveVoice {
@@ -194,7 +203,7 @@ export class LiveVoice {
       if (epoch !== this.epoch) return stream.getTracks().forEach((t) => t.stop())
       this.stream = stream
       stream.getAudioTracks()[0]?.addEventListener('ended', () => {
-        if (this.stream === stream) this.fail('মাইক্রোফোন বন্ধ হয়ে গেছে। আবার "শুরু করুন" চাপুন।')
+        if (this.stream === stream) this.fail('mic_ended')
       })
       await resumed
       this.worklet ??= this.loadWorklet()
@@ -208,12 +217,15 @@ export class LiveVoice {
       this.source = this.ctx.createMediaStreamSource(stream)
       this.source.connect(this.capture)
       await this.connect(epoch)
-      // The user's spoken "ভাইজান" never reaches Gemini (Start tap or browser wake word), so say it for them.
-      this.session?.sendClientContent({ turns: [{ role: 'user', parts: [{ text: 'ভাইজান' }] }], turnComplete: true })
+      // The user's spoken "ভাইজান" never reaches Gemini (Start tap or browser wake word), so say it for them,
+      // in the language the server picked for the greeting.
+      // (cast: TS keeps the `this.token = null` narrowing from above across the awaits)
+      const greeting = (this.token as Token | null)?.greeting ?? 'ভাইজান'
+      this.session?.sendClientContent({ turns: [{ role: 'user', parts: [{ text: greeting }] }], turnComplete: true })
     } catch (e) {
       if (epoch !== this.epoch) return
       console.error('voice start failed', e)
-      this.fail(failureMessage(e))
+      this.fail(failure(e))
     }
   }
 
@@ -341,7 +353,7 @@ export class LiveVoice {
   // Resume after a drop or a goAway: same token + handle first, then a fresh token.
   private async reconnect(): Promise<void> {
     if (this.reconnecting || this.state === 'idle' || this.state === 'error') return
-    if (++this.drops > MAX_DROPS) return this.fail(MSG_OFFLINE) // the server keeps closing: don't loop
+    if (++this.drops > MAX_DROPS) return this.fail('offline') // the server keeps closing: don't loop
     this.reconnecting = true
     this.goAwayPending = false
     clearTimeout(this.goAwayTimer)
@@ -368,7 +380,7 @@ export class LiveVoice {
       }
     }
     this.reconnecting = false
-    this.fail(failureMessage(last))
+    this.fail(failure(last))
   }
 
   private onMessage(m: LiveServerMessage): void {
@@ -487,9 +499,9 @@ export class LiveVoice {
     this.session = null
   }
 
-  private fail(message: string): void {
+  private fail(error: VoiceError): void {
     this.stop('error')
-    this.ev.onError(message)
+    this.ev.onError(error)
   }
 
   private setState(state: VoiceState): void {
@@ -507,13 +519,7 @@ async function fetchToken(): Promise<Token> {
     signal: AbortSignal.timeout(10_000),
   })
   if (res.ok) return res.json()
-  const error = new Error(
-    res.status === 401
-      ? 'আপনি সাইন আউট হয়ে গেছেন। পাতাটি নতুন করে খুলে আবার সাইন ইন করুন।'
-      : res.status === 403
-        ? 'প্রোফাইল পাওয়া যায়নি। পাতাটি নতুন করে খুলুন।'
-        : 'ভাইজান এখন সাড়া দিচ্ছেন না। একটু পরে আবার "শুরু করুন" চাপুন।'
-  )
+  const error = new Error(res.status === 401 ? 'signed_out' : res.status === 403 ? 'no_profile' : 'unavailable')
   error.name = 'TokenError'
   throw error
 }

@@ -1,8 +1,9 @@
 'use server'
 
 import { refresh } from 'next/cache'
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { DEFAULT_SPEECH, langFrom, SPEECH, text as screenText } from '@/lib/i18n'
 import { createClient } from '@/lib/supabase'
 
 // Next.js rejects server actions whose Origin doesn't match the host, so a present Origin is trusted.
@@ -80,7 +81,7 @@ export async function updatePassword(form: FormData) {
 const SAMPLE_PROFILE = {
   preferred_name: 'রহিমা খাতুন',
   form_of_address: 'নানু',
-  language: 'বাংলা (বাংলাদেশ)',
+  language_preference: 'bangla_preferred',
   address: 'বাড়ি ১২, রোড ৫, ধানমন্ডি, ঢাকা ১২০৫',
   preferences: ['সকালে আদা-চা পছন্দ করেন', 'বিকেলে রেডিওতে রবীন্দ্রসংগীত শোনেন', 'ধীরে ও একটু জোরে বললে ভালো শোনেন'],
   conditions: ['উচ্চ রক্তচাপ', 'টাইপ ২ ডায়াবেটিস'],
@@ -141,11 +142,12 @@ export async function saveProfile(form: FormData) {
   const phone = text('caregiver_phone', 30)
   const relationship = text('caregiver_relationship')
   const name = text('caregiver_name')
-  const caregiver = name || relationship || (phone ? 'পরিবারের সদস্য' : '')
+  const someone = screenText(langFrom((await cookies()).get('lang')?.value)).field.caregiver // "family member"
+  const caregiver = name || relationship || (phone ? someone : '')
   await save({
     preferred_name: text('preferred_name'),
     form_of_address: text('form_of_address'),
-    language: 'বাংলা (বাংলাদেশ)',
+    language_preference: SPEECH[Number(form.get('speech') || -1)] ?? DEFAULT_SPEECH, // missing/blank -> default
     address: text('address', 300),
     preferences: lines('preferences'),
     ...medical,
@@ -167,6 +169,13 @@ async function save(profile: object) {
   }
   refresh() // otherwise browser Back shows the old form, and saving that would undo this save
   redirect('/')
+}
+
+// The screen-language toggle. Setting a cookie in an action re-renders the page in place, so a running
+// conversation keeps going.
+export async function setLanguage(form: FormData) {
+  const lang = form.get('lang') === 'en' ? 'en' : 'bn'
+  ;(await cookies()).set('lang', lang, { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
 }
 
 export async function signOut() {

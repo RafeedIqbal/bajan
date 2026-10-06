@@ -25,8 +25,10 @@ export async function POST(request: Request) {
     : null
 
   switch (body.name) {
-    case 'get_profile':
-      return Response.json({ ...profile, caregiver })
+    case 'get_profile': {
+      const { language: _language, ...rest } = profile // older profiles stored a fixed "বাংলা" here
+      return Response.json({ ...rest, caregiver })
+    }
 
     case 'request_caregiver_call': {
       if (!caregiver) return Response.json({ status: 'no_caregiver' })

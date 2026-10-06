@@ -1,5 +1,7 @@
 import { isAuthRetryableFetchError } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { DEFAULT_SPEECH, langFrom, SPEECH, text, type Speech } from '@/lib/i18n'
 import { createClient } from '@/lib/supabase'
 import { signOut } from './actions'
 import Assistant from './assistant'
@@ -8,6 +10,8 @@ const str = (v: unknown) => (typeof v === 'string' ? v : '')
 const list = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [])
 
 export default async function Home() {
+  const lang = langFrom((await cookies()).get('lang')?.value)
+  const t = text(lang)
   const supabase = await createClient()
   const { data, error: authError } = await supabase.auth.getClaims()
   if (isAuthRetryableFetchError(authError)) throw authError // a network blip, not a sign-out
@@ -21,31 +25,27 @@ export default async function Home() {
   const caregiver = str(p.caregiver?.name) ? { name: str(p.caregiver.name), relationship: str(p.caregiver.relationship) } : null
   return (
     <main>
-      <h1>ভাইজান</h1>
-      {data.claims.is_anonymous && (
-        <p className="note" lang="en">
-          You are trying the demo without an account. Signing out ends this demo.
-        </p>
-      )}
-      <Assistant caregiver={caregiver} />
+      <h1>{t.title}</h1>
+      {data.claims.is_anonymous && <p className="note">{t.demoNote}</p>}
+      <Assistant caregiver={caregiver} lang={lang} />
       <details>
-        <summary>প্রোফাইল</summary>
+        <summary>{t.profile}</summary>
         <dl>
-          <dt>নাম</dt>
+          <dt>{t.field.name}</dt>
           <dd>{str(p.preferred_name)}</dd>
-          <dt>সম্বোধন</dt>
+          <dt>{t.field.formOfAddress}</dt>
           <dd>{str(p.form_of_address)}</dd>
-          <dt>ভাষা</dt>
-          <dd>{str(p.language)}</dd>
-          <dt>ঠিকানা</dt>
+          <dt>{t.field.speech}</dt>
+          <dd>{t.speechScale[SPEECH.indexOf((p.language_preference as Speech) ?? DEFAULT_SPEECH)] ?? t.speechScale[2]}</dd>
+          <dt>{t.field.address}</dt>
           <dd>{str(p.address)}</dd>
-          <dt>পছন্দ</dt>
+          <dt>{t.field.preferences}</dt>
           <dd>{list(p.preferences).join('; ')}</dd>
-          <dt>রোগ</dt>
+          <dt>{t.field.conditions}</dt>
           <dd>{list(p.conditions).join('; ')}</dd>
-          <dt>অ্যালার্জি</dt>
+          <dt>{t.field.allergies}</dt>
           <dd>{list(p.allergies).join('; ')}</dd>
-          <dt>ওষুধ</dt>
+          <dt>{t.field.medications}</dt>
           <dd>
             <ul>
               {list(p.medications).map((m, i) => (
@@ -53,11 +53,11 @@ export default async function Home() {
               ))}
             </ul>
           </dd>
-          <dt>চিকিৎসা তথ্যের উৎস</dt>
+          <dt>{t.field.medicalSource}</dt>
           <dd>{str(p.medical_source)}</dd>
-          <dt>সর্বশেষ হালনাগাদ</dt>
+          <dt>{t.field.updated}</dt>
           <dd>{str(p.medical_reviewed_on)}</dd>
-          <dt>পরিবারের সদস্য</dt>
+          <dt>{t.field.caregiver}</dt>
           <dd>
             {caregiver
               ? [caregiver.name + (caregiver.relationship ? ` (${caregiver.relationship})` : ''), str(p.caregiver.phone)]
@@ -66,13 +66,15 @@ export default async function Home() {
               : '—'}
           </dd>
         </dl>
-        <p>
-          <a href="/profile">প্রোফাইল বদলান</a>
-        </p>
       </details>
-      <form>
-        <button formAction={signOut}>সাইন আউট</button>
-      </form>
+      <div className="controls">
+        <a className="button" href="/profile">
+          {t.editProfile}
+        </a>
+        <form>
+          <button formAction={signOut}>{t.signOut}</button>
+        </form>
+      </div>
     </main>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { text, type ErrorKey, type Lang, type Text } from '@/lib/i18n'
 import { callTool, LiveVoice, type ToolResult, type UsageTotals, type VoiceState } from '@/lib/live'
 import { createWakeListener, wakeWordSupported, type WakeListener } from '@/lib/wake'
 
@@ -9,46 +10,40 @@ type Help = { status: string; reason?: string; reused?: boolean; caregiver_name?
 
 const POLLED = ['requested', 'dialing', 'answered', 'unknown'] // not settled yet: keep asking the server
 const DOUBLE_TAP_MS = 700 // older hands double-tap; a second tap must not hit the control that just appeared
-const VOICE_TEXT: Partial<Record<VoiceState, string>> = {
-  connecting: 'সংযোগ হচ্ছে…',
-  listening: 'শুনছি…',
-  speaking: 'বলছি…',
-  reconnecting: 'আবার সংযোগ হচ্ছে…',
+const WAKE_ERRORS: Record<string, ErrorKey> = {
+  'not-allowed': 'wake_not_allowed',
+  'language-not-supported': 'wake_no_bangla',
 }
-const WAKE_ERRORS: Record<string, string> = {
-  'not-allowed': 'নাম শোনার জন্য মাইক্রোফোনের অনুমতি দিন।',
-  'language-not-supported': 'এই ব্রাউজারে বাংলা শোনার সুবিধা নেই।',
-}
-const CALL_YOURSELF = 'দরকার হলে নিজে ফোন করুন, জরুরি হলে ৯৯৯।'
-const NO_CAREGIVER = 'ফোন করার জন্য কোনো পরিবারের সদস্য যোগ করা নেই — "প্রোফাইল বদলান" থেকে যোগ করুন। জরুরি হলে ৯৯৯-এ ফোন করুন।'
 
-function helpText(help: Help, name: string): string {
-  const again = help.reused ? ' একটু আগেই চেষ্টা হয়েছে, নতুন কল হয়নি; এক মিনিট পরে আবার চেষ্টা করুন।' : ''
+function helpText(t: Text, help: Help, name: string): string {
+  const again = help.reused ? t.reused : ''
   switch (help.status) {
     case 'sending':
-      return 'অনুরোধ পাঠানো হচ্ছে…'
+      return t.sending
     case 'requested':
-      return 'অনুরোধ নেওয়া হয়েছে'
+      return t.requested
     case 'dialing':
-      return `${name}-কে ফোন করা হচ্ছে…`
+      return t.dialing(name)
     case 'answered':
-      return `${name} ফোন ধরেছেন (সাহায্য নিশ্চিত নয়)`
+      return t.answered(name)
     case 'ended':
-      return 'কল শেষ।' + again
+      return t.ended + again
     case 'failed':
-      return (help.reason === 'no_answer' ? 'কল হয়নি — কেউ ধরেননি।' : 'কল হয়নি — সমস্যা হয়েছে।') + again
+      return (help.reason === 'no_answer' ? t.failedNoAnswer : t.failedError) + again
     case 'needs_review':
-      return 'কল হয়েছে কিনা নিশ্চিত নয় — নিজে ফোন করুন, জরুরি হলে ৯৯৯।'
+      return t.needsReview
     case 'unknown':
-      return 'অবস্থা জানা যাচ্ছে না, দেখছি… ' + CALL_YOURSELF
+      return t.unknown
   }
   return ''
 }
 
-export default function Assistant({ caregiver }: { caregiver: Caregiver | null }) {
+export default function Assistant({ caregiver, lang }: { caregiver: Caregiver | null; lang: Lang }) {
+  const t = text(lang)
   const [state, setState] = useState<VoiceState>('idle')
-  const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
+  // Kept as keys, not sentences, so switching the screen language rewords what is already shown.
+  const [error, setError] = useState<ErrorKey | null>(null)
+  const [idleStopped, setIdleStopped] = useState(false)
   const [help, setHelp] = useState<Help | null>(null)
   const [usage, setUsage] = useState<UsageTotals | null>(null)
   const [needsTap, setNeedsTap] = useState(false)
@@ -78,12 +73,10 @@ export default function Assistant({ caregiver }: { caregiver: Caregiver | null }
     if (result.status === 'needs_confirmation') return
     if (result.status === 'no_caregiver') {
       setHelp((h) => (h?.status === 'sending' ? null : h))
-      return setError(NO_CAREGIVER)
+      return setError('no_caregiver')
     }
     if (typeof result.status === 'string') {
-      if (result.status === 'none' && unsent.current) {
-        setError('অনুরোধটি পৌঁছায়নি। আবার "সাহায্য চাই" চাপুন। ' + CALL_YOURSELF)
-      }
+      if (result.status === 'none' && unsent.current) setError('help_unsent')
       unsent.current = false
     }
     if (result.status === 'none') return setHelp(null)
@@ -91,11 +84,7 @@ export default function Assistant({ caregiver }: { caregiver: Caregiver | null }
     // Refused (signed out, no profile): never leave "sending…" up, and don't keep showing a
     // ringing call we can no longer check — say it is uncertain (which also stops polling).
     setHelp((h) => (h?.status === 'sending' ? null : h && POLLED.includes(h.status) ? { status: 'needs_review' } : h))
-    setError(
-      result.error === 'unauthorized'
-        ? 'আপনি সাইন আউট হয়ে গেছেন। পাতাটি নতুন করে খুলে আবার সাইন ইন করুন। ' + CALL_YOURSELF
-        : 'অনুরোধ পাঠানো যায়নি। ' + CALL_YOURSELF
-    )
+    setError(result.error === 'unauthorized' ? 'help_signed_out' : 'help_not_sent')
   }
 
   // Created on the first tap: browsers only let audio start from a user gesture.
@@ -110,15 +99,15 @@ export default function Assistant({ caregiver }: { caregiver: Caregiver | null }
         if (name !== 'get_profile') showHelp(result, name === 'request_caregiver_call')
       },
       onError: setError,
-      onIdleStop: () => setNotice('কথা না হওয়ায় বন্ধ হলো'),
+      onIdleStop: () => setIdleStopped(true),
       onAudioBlocked: () => setNeedsTap(true),
     })
     return voice.current
   }
 
   function begin(v: LiveVoice, before?: Promise<void>) {
-    setError('')
-    setNotice('')
+    setError(null)
+    setIdleStopped(false)
     setNeedsTap(false)
     void v.start(before)
   }
@@ -137,13 +126,13 @@ export default function Assistant({ caregiver }: { caregiver: Caregiver | null }
     lastTap.current = performance.now() // never ignore the help button itself; only guard what follows
     voice.current?.touch()
     if (caregiver) dialog.current?.showModal()
-    else setError(NO_CAREGIVER)
+    else setError('no_caregiver')
   }
 
   async function confirmHelp() {
     if (!tap()) return // the Help tap landed on Yes
     dialog.current?.close()
-    setError('')
+    setError(null)
     setHelp({ status: 'sending' })
     showHelp(await callTool(crypto.randomUUID(), 'request_caregiver_call', { confirmed: true }), true)
   }
@@ -172,7 +161,7 @@ export default function Assistant({ caregiver }: { caregiver: Caregiver | null }
       },
       onFatal: (e) => {
         setWakeOn(false)
-        setError(WAKE_ERRORS[e] ?? 'এই ব্রাউজারে নাম শোনার সুবিধা কাজ করছে না।')
+        setError(WAKE_ERRORS[e] ?? 'wake_failed')
       },
       debug: new URLSearchParams(window.location.search).has('debug'),
     })
@@ -199,66 +188,66 @@ export default function Assistant({ caregiver }: { caregiver: Caregiver | null }
   }, [polling])
 
   const running = state !== 'idle' && state !== 'error'
+  const voiceText = state === 'idle' || state === 'error' ? '' : t[state]
   return (
     <section>
       <p className="voice-state" aria-hidden="true">
-        {VOICE_TEXT[state] ?? ''}
+        {voiceText}
       </p>
       {/* Announce connection changes only; listening/speaking would talk over Bhaijaan. */}
       <p role="status" className="note">
-        {state === 'connecting' || state === 'reconnecting' ? VOICE_TEXT[state] : notice}
+        {state === 'connecting' || state === 'reconnecting' ? voiceText : idleStopped ? t.idleStopped : ''}
       </p>
-      <p role="alert">{error}</p>
-      {needsTap && <button onClick={continueAudio}>চালিয়ে যেতে চাপুন</button>}
+      <p role="alert">{error ? t.errors[error] : ''}</p>
+      {needsTap && <button onClick={continueAudio}>{t.continueAudio}</button>}
 
       <div className="controls">
         {running ? (
           <button className="primary" onClick={stop}>
-            থামুন
+            {t.stop}
           </button>
         ) : (
           <button className="primary" onClick={start}>
-            শুরু করুন
+            {t.start}
           </button>
         )}
         <button className="help" onClick={askHelp}>
-          সাহায্য চাই
+          {t.help}
         </button>
         {!caregiver && (
           <p className="note">
-            ফোন করার জন্য কেউ যোগ করা নেই — <a href="/profile">পরিবারের কাউকে যোগ করুন</a>
+            {t.noCaregiverNote} <a href="/profile">{t.addCaregiver}</a>
           </p>
         )}
         {/* aria-disabled keeps keyboard focus when playback starts; repeat() ignores taps it can't serve. */}
         <button onClick={() => voice.current?.repeat()} aria-disabled={state !== 'listening'}>
-          আবার বলুন
+          {t.repeat}
         </button>
       </div>
 
       {/* A held Enter key would repeat onto "Yes" once the dialog takes focus. */}
       <dialog ref={dialog} aria-labelledby="confirm-call" onKeyDown={(e) => e.repeat && e.preventDefault()}>
         <p id="confirm-call">
-          {caregiver?.name}
-          {caregiver?.relationship && ` (${caregiver.relationship})`}-কে ফোন করবো?
+          {caregiver && t.confirmCall(caregiver.name + (caregiver.relationship ? ` (${caregiver.relationship})` : ''))}
         </p>
         <div className="controls">
           <button className="help" onClick={confirmHelp}>
-            হ্যাঁ, ফোন করুন
+            {t.yesCall}
           </button>
-          <button onClick={() => dialog.current?.close()}>না</button>
+          <button onClick={() => dialog.current?.close()}>{t.no}</button>
         </div>
       </dialog>
 
-      <h2>ফোনের অবস্থা</h2>
-      <p role="status">{help ? helpText(help, help.caregiver_name || caregiver?.name || '') : 'কোনো অনুরোধ নেই'}</p>
-      <p className="note">পরীক্ষামূলক কল — আসল ফোন যাবে না।</p>
+      <h2>{t.callStatus}</h2>
+      <p role="status">{help ? helpText(t, help, help.caregiver_name || caregiver?.name || '') : t.noRequest}</p>
+      <p className="note">{t.testCall}</p>
 
       {wakeSupported && (
         <>
           <label>
-            <input type="checkbox" checked={wakeOn} onChange={toggleWake} /> &ldquo;ভাইজান&rdquo; ডাক শুনুন
+            <input type="checkbox" checked={wakeOn} onChange={toggleWake} /> {t.wakeToggle}
           </label>
-          <p className="note">চালু থাকলে মাইকের শব্দ নাম শোনার জন্য Google-এ যায়; নাম শুনলে কথা শুরু হবে।</p>
+          <p className="note">{t.wakeNote}</p>
         </>
       )}
 
