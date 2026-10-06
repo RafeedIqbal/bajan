@@ -1,0 +1,158 @@
+/* Large, high-contrast (WCAG AAA) controls for older users. System fonts: Android ships Noto Sans Bengali,
+   Windows Nirmala UI, Apple Kohinoor Bangla. */
+:root {
+  color-scheme: light;
+  --fg: #111;
+  --bg: #fff;
+  --muted: #444;
+  --accent: #0b4f8a;
+  --danger: #8a1c1c;
+  --focus: #b35400;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 125%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, 'Noto Sans Bengali', 'Nirmala UI', 'Kohinoor Bangla', sans-serif;
+  line-height: 1.6;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+main {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin: 0.5rem 0;
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 1.5rem 0 0.25rem;
+}
+
+button {
+  font: inherit;
+  min-height: 64px;
+  padding: 0.5rem 1.25rem;
+  border: 2px solid var(--fg);
+  border-radius: 0.75rem;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+button[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+button.primary,
+button.help {
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+button.help {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+:focus-visible {
+  outline: 4px solid var(--focus);
+  outline-offset: 3px;
+}
+
+input[type='email'],
+input[type='password'],
+input[type='text'],
+input[type='tel'],
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font: inherit;
+  border: 2px solid var(--fg);
+  border-radius: 0.5rem;
+}
+
+input[type='checkbox'] {
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: middle;
+}
+
+form,
+.controls {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.voice-state {
+  min-height: 1.6em;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+[role='alert'] {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.note,
+.cost {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+fieldset {
+  margin: 0.5rem 0;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--muted);
+  border-radius: 0.75rem;
+}
+
+dialog {
+  max-width: 90vw;
+  padding: 1.5rem;
+  border: 3px solid var(--fg);
+  border-radius: 1rem;
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+dialog .controls {
+  margin-top: 1rem;
+}
+
+details {
+  margin-top: 2rem;
+}
+
+dt {
+  font-weight: 600;
+}
+
+dd {
+  margin: 0 0 0.5rem;
+}

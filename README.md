@@ -1,2 +1,165 @@
-# bhaijaan
+# ভাইজান (Bhaijaan)
 
+A Bangla voice assistant proof of concept for older adults who live alone. It is built from
+[`docs/Bangla_Voice_Assistant_MVP.md`](docs/Bangla_Voice_Assistant_MVP.md). It does three things:
+
+- holds a spoken Bangla conversation (Gemini Live, `gemini-3.8-live`)
+- answers from a small structured profile that each tester fills in when they first sign in
+- requests a call to one enrolled caregiver and shows the real status
+
+Caregiver calls are **simulated**: no phone rings. Testers are asked to use made-up profile details.
+
+## Ways to try it
+
+- **Try the demo** (login page): one click and no account. Each visitor gets a private anonymous account with a sample profile (রহিমা খাতুন, caregiver করিম).
+- **Create an account** with email + password or an emailed link. On first sign-in, an onboarding form asks for the profile; every field is optional, and **Use the sample profile** fills it in one click. Edit it later from the home page (প্রোফাইল → প্রোফাইল বদলান).
+
+Without a family member on the profile, Get help explains that nobody can be called and points to 999, and no call is placed.
+
+## Stack
+
+- **App:** Next.js 16 (App Router) on Vercel, with Supabase (Postgres + Auth).
+- **Audio:** the browser streams audio straight to Gemini using a short-lived token from `/api/token`.
+- **Tools:** the model's tools run on the server in `/api/tools`, which calls Postgres functions in `supabase/migrations`.
+- **Wake word (optional):** Chrome's speech recognition. It runs in Google's cloud, so mic audio goes to Google while the toggle is on.
+
+## Local setup
+
+Prerequisites: Node 24, Docker, and a Gemini API key from a **billing-enabled** Google Cloud project. The free tier's terms forbid personal data, and testers' voices count as personal data.
+
+```bash
+npm install
+npx -y supabase@2.119.0 start        # local Postgres + Auth + Mailpit; applies migrations
+npx -y supabase@2.119.0 status       # copy API_URL and PUBLISHABLE_KEY into .env.local
+cp .env.example .env.local           # then fill in the values
+npm run dev                          # http://localhost:3000
+```
+
+Open http://localhost:3000 and use **Try the demo**, or create an account. Locally, confirmation emails go to Mailpit at http://127.0.0.1:54324.
+
+### Checks
+
+```bash
+npm test          # wake-word matcher and cost maths (node:test)
+npm run test:db   # duplicate-call guard, call timeline, profile ownership (pgTAP, needs `supabase start`)
+npm run build     # type-check + production build
+```
+
+### Simulated calls
+
+`SIMULATED_CALL_OUTCOME` sets how a call ends. Time is measured from the request.
+
+| Outcome | What happens |
+| --- | --- |
+| `answered` (default) | dialing, then answered at 6 s, then ended at 26 s |
+| `no_answer` | dialing, then failed (no answer) at 20 s |
+| `error` | failed at once (provider error) |
+| `timeout` | needs_review: an ambiguous outcome, never retried automatically |
+
+A request in `needs_review` blocks new calls for that profile until someone reviews it. After checking, resolve it with:
+
+```sql
+update public.help_requests set status = 'failed', updated_at = now()
+ where status = 'needs_review' and id = '<request id>';
+```
+
+The duplicate guard returns the existing request, and places no new call, when an event repeats with the same id, when a request is still unresolved, or when the last request is less than a minute old.
+
+## Deploy (Vercel + Supabase)
+
+### Supabase
+
+1. Create a project in a region near your Vercel function region, e.g. Singapore or Mumbai for Bangladesh.
+2. Push the schema:
+
+   ```bash
+   npx -y supabase@2.119.0 login
+   npx -y supabase@2.119.0 link --project-ref <ref>
+   npx -y supabase@2.119.0 db push
+   ```
+
+3. Under **Auth → URL Configuration**:
+   - Set Site URL to `https://<prod-domain>`.
+   - Add redirect URLs `https://<prod-domain>/auth/callback**`, `https://<project>.vercel.app/auth/callback**` (every hostname testers use) and `http://localhost:3000/**`. Email links that point to any other host lose their sign-in code.
+   - Under **Auth → Providers → Email**, turn on **Secure password change**, so a borrowed session can't set a new password. The repo sets the same option for local runs in `supabase/config.toml`.
+4. Under **Auth → SMTP**, set up custom SMTP, e.g. Resend: `smtp.resend.com`, port 465, user `resend`, your API key as the password, and a verified domain. The built-in sender only mails project members, so open sign-up can't work without this. Keep the default email rate limit (30/h). With no CAPTCHA, that limit is the abuse ceiling.
+5. Under **Auth → Sign In / Providers**, turn on **Allow anonymous sign-ins** for the demo button. Anonymous sign-ins are capped per IP (30/h by default, under **Auth → Rate Limits**). Every demo visitor is signed in from Vercel's server, so they all share one IP. Raise the cap if testers see "Could not start the demo".
+6. Demo accounts pile up. Every so often, clear out old ones; their profiles and help requests are deleted with them:
+
+   ```sql
+   delete from auth.users where is_anonymous and created_at < now() - interval '30 days';
+   ```
+
+### Vercel
+
+1. Run `npx vercel link`.
+2. Set these env vars for Production:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `GEMINI_API_KEY`
+   - `SIMULATED_CALL_OUTCOME`
+3. Set the function region to match Supabase (Project → Settings → Functions).
+4. Deploy with `npx vercel deploy --prod`. Previews sit behind Vercel's login, so testers need the production URL.
+5. In Google Cloud, add a **budget alert** on the Gemini project. Anyone who signs up, or uses the demo, can start Gemini sessions, and nothing in the app caps spending, so this alert is the cap. Sessions stop by themselves after 3 silent minutes. If the demo URL gets shared widely, turn off anonymous sign-ins, or rotate `GEMINI_API_KEY`, to stop spending at once. CAPTCHA (Supabase Auth → Bot and Abuse Protection) would also need a widget on the login page, plus its token passed to every auth call, before it can be switched on.
+
+### Testing on a phone
+
+The mic and the wake word need HTTPS (or `localhost`). Use either:
+
+- the production URL, or
+- a USB-connected Android phone with `adb reverse tcp:3000 tcp:3000`, then open `http://localhost:3000` on the phone.
+
+For wake-word tests, set the phone's screen timeout to its maximum. Chrome stops listening when the screen sleeps.
+
+## Data and scope
+
+- Testers type their own profile, and the form asks for made-up details. Medical details entered there are labelled "self-reported, not verified", and the assistant reads them back as such. Gemini receives the profile through `get_profile` (name, address, conditions, allergies, medications, caregiver name and relationship), but never the caregiver's phone number.
+- With the wake-word toggle on, Chrome streams mic audio to Google's speech service to listen for the name. This is a separate data flow from Gemini, and it is opt-in.
+- The assistant offers companionship, reads back recorded information, and requests a caregiver call. It gives no medical advice and does no triage.
+- **Before any pilot with real data**, re-assess both data flows above, the Gemini service agreement and data configuration (spec §7), and the open sign-up and demo settings.
+
+## Acceptance checklist (spec §9)
+
+Run these in Chrome on desktop and on Android, with the phone on loudspeaker about 1 m away. Use **Try the demo**, or **Use the sample profile** at onboarding: the expected answers below come from that sample.
+
+- [ ] The flow works with the large controls alone and with voice alone. Get help also works with no conversation running, and after Gemini fails (block `generativelanguage.googleapis.com` in DevTools).
+- [ ] Bangla names, dates, numbers and English terms stay understandable. Ask for the address, the last-reviewed date and "আমার রাতের ওষুধ কী?" (expect Metformin 500 mg, রাত ৮টা).
+- [ ] Doses are read back exactly. "মেটফরমিন কতটুকু?" gives the recorded dose. "ডোজ বাড়াবো?" gets a refusal and an offer to call the caregiver.
+- [ ] Negation is preserved. "সকালের ওষুধ খেয়েছি, রাতেরটা খাইনি" → only the night medicine is mentioned, and nothing is stored.
+- [ ] A contact correction is handled before anything runs. "মেয়েকে ফোন করো" → the assistant names করিম (ছেলে). "না, থাক" → no request is created.
+- [ ] Repeated tool events never create duplicate calls. Ask twice, use the button and voice together, or go offline and come back: there is still one row, and a repeat says no new call was placed.
+- [ ] Failures and drops get an honest status.
+  - With `no_answer`, `error` and `timeout`, the wording matches the outcome.
+  - Going offline right after "yes" shows "checking" and then the real status.
+  - Going offline for 5 s mid-talk shows reconnecting, then the conversation continues.
+- [ ] Help is never reported as acknowledged. After "answered", ask "ছেলে কি আসছে?" → the assistant says only that the call connected.
+- [ ] The male voice greets you after Start and after the wake word. Three silent minutes stop the session by itself. Repeat replays the last answer.
+- [ ] Accessibility: a keyboard-only run, TalkBack announcing call-status changes, 200% zoom, and a contrast check.
+- [ ] A 15-minute conversation, including at least one reconnect, stays coherent and its full cost is recorded below.
+
+## Calibration notes (spec §9.4)
+
+Fill these in on a real phone with intended speakers:
+
+| Item | Value / result |
+| --- | --- |
+| VAD `silenceDurationMs` (800 vs 1200): is the setting honored, are pauses cut? | |
+| Self-interruption on loudspeaker during long answers | |
+| Quiet speech detected? Playback loud enough? | |
+| Wake word: hits out of 20 tries (older Bangladeshi speaker) | |
+| Wake word: false triggers in 10 min of TV and family talk (`?debug` logs transcripts) | |
+| Voice choice (Achird / Schedar / Algieba / Iapetus / Charon) | Achird — approved by ear on Bangla samples (2026-10-06); confirm with older listeners |
+| Response latency and comprehension targets chosen | |
+
+## Cost record (spec §6)
+
+Fill in after a representative 15-minute session. The on-screen readout and `console.info` on Stop give token totals.
+
+| Item | Value |
+| --- | --- |
+| Readout: audio in / text in / audio out / text out tokens | |
+| Readout: estimated Gemini USD | |
+| Gemini project spend that day (Cloud Billing / AI Studio, checked next day) | |
+| Gap explained (retries, failed sessions, usage not reported) | |
+| Hosting: Vercel plan / Supabase plan | |
+| Telephony | $0 (simulated) |
