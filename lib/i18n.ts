@@ -1,5 +1,5 @@
 // On-screen text in Bangla and English, chosen by the `lang` cookie (the toggle at the top of every page).
-// Bhaijaan's spoken language is separate: he answers in whatever language the user speaks.
+// Bhaijaan's spoken language is separate: a profile setting (SPEECH below).
 
 export type Lang = 'bn' | 'en'
 
@@ -12,12 +12,19 @@ export const SPEECH = ['bangla_only', 'bangla_preferred', 'mix', 'english_prefer
 export type Speech = (typeof SPEECH)[number]
 export const DEFAULT_SPEECH: Speech = 'mix'
 
+// A recording's length against its limit, e.g. 0:07 / 2:00.
+const clock = (s: number, max: number) => [s, max].map((n) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`).join(' / ')
+const BANGLA_DIGITS = '০১২৩৪৫৬৭৮৯'
+
 const bn = {
   title: 'ভাইজান',
+  tagline: 'কথা বলুন, প্রশ্ন করুন, দরকারে সাহায্য চান — ভাইজান পাশে আছেন।',
 
   // conversation
   connecting: 'সংযোগ হচ্ছে…',
   listening: 'শুনছি…',
+  ready: 'আপনার বার্তার অপেক্ষায়…',
+  thinking: 'ভাবছি…',
   speaking: 'বলছি…',
   reconnecting: 'আবার সংযোগ হচ্ছে…',
   idleStopped: 'কথা না হওয়ায় বন্ধ হলো',
@@ -26,6 +33,19 @@ const bn = {
   help: 'সাহায্য চাই',
   repeat: 'আবার বলুন',
   continueAudio: 'চালিয়ে যেতে চাপুন',
+
+  // transcript and messages
+  conversation: 'কথোপকথন',
+  transcriptEmpty: 'আপনি আর ভাইজান যা বলবেন, এখানে লেখা দেখা যাবে।',
+  you: 'আপনি',
+  voiceMessage: 'ভয়েস মেসেজ',
+  typeLabel: 'লিখে পাঠান',
+  send: 'পাঠান',
+  recordVoice: 'ভয়েস মেসেজ রেকর্ড করুন',
+  recording: (s: number, max: number) => `রেকর্ড হচ্ছে… ${clock(s, max).replace(/\d/g, (d) => BANGLA_DIGITS[Number(d)])}`,
+  sendVoice: 'ভয়েস মেসেজ পাঠান',
+  cancel: 'বাতিল',
+  messageNote: 'ভাইজান সবসময় মুখে উত্তর দেন; উত্তরটি এখানেও লেখা থাকে।',
 
   // help request
   confirmCall: (who: string) => `${who}-কে ফোন করবো?`,
@@ -52,14 +72,16 @@ const bn = {
   wakeNote: 'চালু থাকলে মাইকের শব্দ নাম শোনার জন্য Google-এ যায়; নাম শুনলে কথা শুরু হবে।',
 
   errors: {
-    offline: 'সংযোগ হয়নি। ইন্টারনেট দেখে আবার "শুরু করুন" চাপুন।',
-    mic_denied: 'মাইক্রোফোন চালুর অনুমতি দিন, তারপর আবার "শুরু করুন" চাপুন।',
+    offline: 'সংযোগ হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।',
+    mic_denied: 'মাইক্রোফোন চালুর অনুমতি দিন, তারপর আবার চেষ্টা করুন।',
     mic_missing: 'কোনো মাইক্রোফোন পাওয়া যায়নি।',
     mic_busy: 'মাইক্রোফোন এখন অন্য কোথাও ব্যবহার হচ্ছে।',
-    mic_ended: 'মাইক্রোফোন বন্ধ হয়ে গেছে। আবার "শুরু করুন" চাপুন।',
+    mic_ended: 'মাইক্রোফোন বন্ধ হয়ে গেছে। আবার চেষ্টা করুন।',
+    nothing_recorded: 'কিছু রেকর্ড হয়নি। মাইক্রোফোনের অনুমতি দিয়ে আবার চেষ্টা করুন।',
+    message_unsent: 'সংযোগ কেটে গিয়েছিল; আপনার শেষ বার্তাটি হয়তো পৌঁছায়নি। উত্তর না পেলে আবার পাঠান।',
     signed_out: 'আপনি সাইন আউট হয়ে গেছেন। পাতাটি নতুন করে খুলে আবার সাইন ইন করুন।',
     no_profile: 'প্রোফাইল পাওয়া যায়নি। পাতাটি নতুন করে খুলুন।',
-    unavailable: 'ভাইজান এখন সাড়া দিচ্ছেন না। একটু পরে আবার "শুরু করুন" চাপুন।',
+    unavailable: 'ভাইজান এখন সাড়া দিচ্ছেন না। একটু পরে আবার চেষ্টা করুন।',
     help_signed_out: 'আপনি সাইন আউট হয়ে গেছেন। পাতাটি নতুন করে খুলে আবার সাইন ইন করুন। দরকার হলে নিজে ফোন করুন, জরুরি হলে ৯৯৯।',
     help_not_sent: 'অনুরোধ পাঠানো যায়নি। দরকার হলে নিজে ফোন করুন, জরুরি হলে ৯৯৯।',
     help_unsent: 'অনুরোধটি পৌঁছায়নি। আবার "সাহায্য চাই" চাপুন। দরকার হলে নিজে ফোন করুন, জরুরি হলে ৯৯৯।',
@@ -90,6 +112,7 @@ const bn = {
 
   // profile form
   setupTitle: 'আপনার প্রোফাইল',
+  sections: { about: 'আপনার সম্পর্কে', health: 'স্বাস্থ্য ও ওষুধ' },
   intro: 'সব ঘর ঐচ্ছিক — যা জানাতে চান শুধু তা লিখুন। ভাইজান এই তথ্য দেখে উত্তর দেবেন।',
   madeUp: 'পরীক্ষার সময় কাল্পনিক তথ্য দিন, আসল চিকিৎসা তথ্য নয়।',
   saveError: 'সংরক্ষণ হয়নি, আবার চেষ্টা করুন।',
@@ -125,6 +148,7 @@ const bn = {
   demoTitle: 'শুধু একবার দেখতে চান?',
   demoText: 'নমুনা প্রোফাইল দিয়ে ডেমো ব্যবহার করুন — অ্যাকাউন্ট বা ইমেইল লাগবে না।',
   tryDemo: 'ডেমো ব্যবহার করুন',
+  orSignIn: 'অথবা অ্যাকাউন্টে সাইন ইন করুন',
   loginErrors: {
     missing: 'ইমেইল (ও পাসওয়ার্ড) লিখুন।',
     bad_login: 'ইমেইল বা পাসওয়ার্ড ভুল, অথবা ইমেইল এখনো নিশ্চিত করা হয়নি।',
@@ -135,6 +159,13 @@ const bn = {
     demo: 'এখন ডেমো শুরু করা যাচ্ছে না। এক মিনিট পরে আবার চেষ্টা করুন।',
   } as Record<string, string>,
   checkEmail: 'লিংকের জন্য আপনার ইমেইল দেখুন।',
+
+  // error pages
+  errorTitle: 'কিছু একটা গোলমাল হয়েছে',
+  errorText: 'ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন। জরুরি হলে ৯৯৯-এ ফোন করুন।',
+  tryAgain: 'আবার চেষ্টা করুন',
+  notFound: 'এই পাতাটি পাওয়া যায়নি।',
+  goHome: 'শুরুর পাতায় যান',
 }
 
 export type Text = typeof bn
@@ -142,9 +173,12 @@ export type Text = typeof bn
 // `Text` makes the compiler check that English has exactly the same entries as Bangla.
 const en: Text = {
   title: 'Bhaijaan',
+  tagline: 'Talk, ask questions, get help when you need it — Bhaijaan is here for you.',
 
   connecting: 'Connecting…',
   listening: 'Listening…',
+  ready: 'Waiting for your message…',
+  thinking: 'Thinking…',
   speaking: 'Speaking…',
   reconnecting: 'Reconnecting…',
   idleStopped: 'Stopped because nobody spoke',
@@ -153,6 +187,18 @@ const en: Text = {
   help: 'Get help',
   repeat: 'Repeat',
   continueAudio: 'Tap to continue',
+
+  conversation: 'Conversation',
+  transcriptEmpty: 'What you and Bhaijaan say will be written here.',
+  you: 'You',
+  voiceMessage: 'Voice message',
+  typeLabel: 'Type a message',
+  send: 'Send',
+  recordVoice: 'Record a voice message',
+  recording: (s: number, max: number) => `Recording… ${clock(s, max)}`,
+  sendVoice: 'Send voice message',
+  cancel: 'Cancel',
+  messageNote: 'Bhaijaan always answers out loud; the answer is written here too.',
 
   confirmCall: (who: string) => `Call ${who}?`,
   yesCall: 'Yes, call',
@@ -177,14 +223,16 @@ const en: Text = {
   wakeNote: 'While this is on, mic audio goes to Google to listen for the name; hearing it starts a conversation.',
 
   errors: {
-    offline: 'Could not connect. Check the internet and press Start again.',
-    mic_denied: 'Please allow the microphone, then press Start again.',
+    offline: 'Could not connect. Check the internet and try again.',
+    mic_denied: 'Please allow the microphone, then try again.',
     mic_missing: 'No microphone was found.',
     mic_busy: 'The microphone is being used by something else.',
-    mic_ended: 'The microphone turned off. Press Start again.',
+    mic_ended: 'The microphone turned off. Please try again.',
+    nothing_recorded: 'Nothing was recorded. Allow the microphone and try again.',
+    message_unsent: 'The connection dropped, so your last message may not have arrived. Send it again if no answer comes.',
     signed_out: 'You have been signed out. Reload the page and sign in again.',
     no_profile: 'No profile was found. Please reload the page.',
-    unavailable: 'Bhaijaan is not responding right now. Press Start again in a moment.',
+    unavailable: 'Bhaijaan is not responding right now. Try again in a moment.',
     help_signed_out: 'You have been signed out. Reload the page and sign in again. If needed, call your family member yourself, or 999 in an emergency.',
     help_not_sent: 'The request could not be sent. If needed, call your family member yourself, or 999 in an emergency.',
     help_unsent: 'The request did not get through. Press Get help again. If needed, call your family member yourself, or 999 in an emergency.',
@@ -213,6 +261,7 @@ const en: Text = {
   },
 
   setupTitle: 'Your profile',
+  sections: { about: 'About you', health: 'Health and medicines' },
   intro: 'Every field is optional — fill in only what you want. Bhaijaan answers from these details.',
   madeUp: 'Please use made-up details while testing, not real medical information.',
   saveError: 'Could not save; please try again.',
@@ -247,6 +296,7 @@ const en: Text = {
   demoTitle: 'Just trying it out?',
   demoText: 'Use a demo with a sample profile. No account or email needed.',
   tryDemo: 'Try the demo',
+  orSignIn: 'Or sign in to your account',
   loginErrors: {
     missing: 'Enter your email (and password).',
     bad_login: 'Email or password is incorrect, or the email is not confirmed yet.',
@@ -257,6 +307,12 @@ const en: Text = {
     demo: 'Could not start the demo right now. Wait a minute and try again.',
   },
   checkEmail: 'Check your email for the link.',
+
+  errorTitle: 'Something went wrong',
+  errorText: 'Check the internet connection and try again. In an emergency, call 999.',
+  tryAgain: 'Try again',
+  notFound: 'This page could not be found.',
+  goHome: 'Go to the start page',
 }
 
 export function text(lang: Lang): Text {

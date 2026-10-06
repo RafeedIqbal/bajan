@@ -5,6 +5,7 @@ import { DEFAULT_SPEECH, langFrom, SPEECH, text, type Speech } from '@/lib/i18n'
 import { createClient } from '@/lib/supabase'
 import { signOut } from './actions'
 import Assistant from './assistant'
+import SubmitButton from './submit-button'
 
 const str = (v: unknown) => (typeof v === 'string' ? v : '')
 const list = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [])
@@ -25,10 +26,10 @@ export default async function Home() {
   const caregiver = str(p.caregiver?.name) ? { name: str(p.caregiver.name), relationship: str(p.caregiver.relationship) } : null
   return (
     <main>
-      <h1>{t.title}</h1>
-      {data.claims.is_anonymous && <p className="note">{t.demoNote}</p>}
+      <h1 className="sr-only">{t.title}</h1>
+      {data.claims.is_anonymous && <p className="banner">{t.demoNote}</p>}
       <Assistant caregiver={caregiver} lang={lang} />
-      <details>
+      <details className="card">
         <summary>{t.profile}</summary>
         <dl>
           <dt>{t.field.name}</dt>
@@ -67,14 +68,12 @@ export default async function Home() {
           </dd>
         </dl>
       </details>
-      <div className="controls">
+      <form className="row">
         <a className="button" href="/profile">
           {t.editProfile}
         </a>
-        <form>
-          <button formAction={signOut}>{t.signOut}</button>
-        </form>
-      </div>
+        <SubmitButton formAction={signOut}>{t.signOut}</SubmitButton>
+      </form>
     </main>
   )
 }

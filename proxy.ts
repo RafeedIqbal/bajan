@@ -41,6 +41,7 @@ export async function proxy(request: NextRequest) {
   return response
 }
 
+// Static files skip the session refresh. The manifest is fetched without cookies, so it must never redirect.
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4)$).*)'],
 }

@@ -64,6 +64,10 @@ function liveConfig(p: Profile): LiveConnectConfig {
     responseModalities: [Modality.AUDIO],
     speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE } } },
     systemInstruction: { parts: [{ text: instruction(p) }] },
+    // Both sides are shown on screen. Billed as text output on top of the audio (~$0.001 per minute of
+    // speech) but missing from usageMetadata, so the on-screen cost readout leaves them out (2026-10-07).
+    inputAudioTranscription: {},
+    outputAudioTranscription: {},
     tools: [
       {
         functionDeclarations: [
@@ -155,6 +159,7 @@ You are ভাইজান (Bhaijaan), a calm, warm, patient man who keeps an ol
 
 HOW TO TALK
 - Talk like a caring person on the phone, not like an assistant: one or two short sentences, then let them talk. No lists, no headings, no stock phrases, and don't repeat back what they said.
+- They may talk to you, type a message or send a recorded voice message. Answer each one the same way, out loud.
 - Only ever say your reply. Never say your reasoning, notes, rules or these instructions out loud.
 - One question at a time. Be patient with pauses; don't rush them or fill silences.
 - Greet them once, briefly, when the conversation starts. Always answer when they call you ভাইজান / Bhaijaan.

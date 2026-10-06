@@ -1,8 +1,9 @@
-// Runnable checks for the two pieces of non-trivial client logic: `npm test` (node:test, no dependencies).
+// Runnable checks for the non-trivial client logic: `npm test` (node:test, no dependencies).
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import { MediaModality } from '@google/genai'
-import { addUsage, ZERO_USAGE } from './live.ts'
+import { addUsage, appendTranscript, closeTranscript, newEntry, ZERO_USAGE } from './live.ts'
 import { matchesWakeWord } from './wake.ts'
 
 test('wake word: ভাইজান in its spoken and transcribed forms', () => {
@@ -50,4 +51,55 @@ test('usage: tokens the modality details leave out still count (as text)', () =>
   })
   assert.equal(t.textIn + t.audioIn, 1490)
   assert.equal(t.audioOut + t.textOut, 133 + 128)
+})
+
+test('transcript: late words join their own line, interruptions cut only Bhaijaan, turns close both', () => {
+  let list = appendTranscript([], 'user', 'আমার রাতের')
+  list = appendTranscript(list, 'bhaijaan', 'আপনার রাতের ওষুধ')
+  list = appendTranscript(list, 'user', ' ওষুধ কী?') // input transcription trailing the answer's start
+  assert.deepEqual(list.map((e) => [e.who, e.text]), [['user', 'আমার রাতের ওষুধ কী?'], ['bhaijaan', 'আপনার রাতের ওষুধ']])
+
+  list = closeTranscript(list, true) // they spoke over him
+  assert.deepEqual(list.map((e) => [e.who, e.open, e.cut]), [['user', true, false], ['bhaijaan', false, true]])
+  list = appendTranscript(list, 'bhaijaan', 'জি, বলুন।') // his next answer starts a new line
+  assert.equal(list.length, 3)
+
+  list = [...closeTranscript(list, false), newEntry('user', '', true, true), newEntry('bhaijaan', ' ', true)]
+  list = closeTranscript(list, false) // an empty answer is dropped; a voice message stays even before its words
+  assert.deepEqual(list.map((e) => [e.who, e.open, e.voice]), [['user', false, false], ['bhaijaan', false, false], ['bhaijaan', false, false], ['user', false, true]])
+  assert.equal(new Set(list.map((e) => e.id)).size, list.length, 'ids are unique (React keys)')
+})
+
+// WCAG 2 contrast ratio of two #rrggbb colours.
+function contrast(a: string, b: string): number {
+  const luminance = (hex: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => {
+      const c = parseInt(hex.slice(i, i + 2), 16) / 255
+      return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+    })
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+  }
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+test('colours: every text/background pair in globals.css meets WCAG AAA (7:1)', () => {
+  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+  const root = css.slice(css.indexOf(':root {'), css.indexOf('}', css.indexOf(':root {')))
+  const token = (name: string) => {
+    const hex = root.match(new RegExp(`--${name}:\\s*(#[0-9a-f]{6})`, 'i'))?.[1]
+    assert.ok(hex, `--${name} is a #rrggbb colour in :root`)
+    return hex
+  }
+  const pairs: [string, string][] = [
+    ['ink', 'bg'], ['ink', 'surface'], ['ink', 'brand-soft'], ['ink', 'user-bubble'], ['ink', 'tone-active'], ['ink', 'tone-bad'],
+    ['muted', 'bg'], ['muted', 'surface'], ['muted', 'brand-soft'],
+    ['brand', 'surface'], ['brand', 'bg'], ['brand', 'brand-soft'],
+    ['help', 'surface'], ['help', 'tone-bad'],
+  ]
+  for (const [fg, bg] of pairs) assert.ok(contrast(token(fg), token(bg)) >= 7, `${fg} on ${bg}: ${contrast(token(fg), token(bg)).toFixed(2)}`)
+  // White button text on the two filled buttons.
+  for (const bg of ['brand', 'brand-strong', 'help', 'help-strong']) assert.ok(contrast('#ffffff', token(bg)) >= 7, `white on ${bg}`)
+  // Control borders: 3:1 against what they sit on (WCAG 1.4.11).
+  for (const bg of ['bg', 'surface']) assert.ok(contrast(token('line'), token(bg)) >= 3, `line on ${bg}`)
 })

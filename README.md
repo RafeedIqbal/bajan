@@ -4,6 +4,7 @@ A Bangla voice assistant proof of concept for older adults who live alone. It is
 [`docs/Bangla_Voice_Assistant_MVP.md`](docs/Bangla_Voice_Assistant_MVP.md). It does three things:
 
 - holds a spoken conversation (Gemini Live, `gemini-3.8-live`) in Bangla, English or a mix: Bhaijaan replies in whatever language he's spoken to
+- also takes typed messages and recorded voice messages, always answers out loud, and writes both sides on screen
 - answers from a small structured profile that each tester fills in when they first sign in
 - requests a call to one enrolled caregiver and shows the real status
 
@@ -15,6 +16,16 @@ Caregiver calls are **simulated**: no phone rings. Testers are asked to use made
 - **Create an account** with email + password or an emailed link. On first sign-in, an onboarding form asks for the profile; every field is optional, and **Use the sample profile** fills it in one click. Edit it later with the **Edit profile** (প্রোফাইল বদলান) button on the home page.
 
 Without a family member on the profile, Get help explains that nobody can be called and points to 999, and no call is placed.
+
+Three ways to talk to him, all on the home page:
+
+- **Start** (শুরু করুন): a live conversation with the mic open. Gemini decides when you have finished speaking.
+- **Type a message** (লিখে পাঠান): no mic needed. Works during a live conversation too.
+- **Record a voice message** (ভয়েস মেসেজ): like a WhatsApp voice note, up to 2 minutes, sent as one message however long you pause. Not shown during a live conversation (just speak).
+
+Bhaijaan always answers out loud, and the **Conversation** box shows both sides as text (Gemini's own transcription). Switching between messages and Start keeps the conversation going; Stop ends it, and the next one starts fresh.
+
+On Android, Chrome's **Add to Home screen** installs it with Bhaijaan's face as the app icon.
 
 Every page has **বাংলা / English** buttons at the top. They switch the on-screen text only (remembered in a cookie). Everyone, demo users included, can change their profile with the **Edit profile** button on the home page.
 
@@ -44,7 +55,7 @@ Open http://localhost:3000 and use **Try the demo**, or create an account. Local
 ### Checks
 
 ```bash
-npm test          # wake-word matcher and cost maths (node:test)
+npm test          # wake-word matcher, cost maths, transcript lines, AAA colour contrast (node:test)
 npm run test:db   # duplicate-call guard, call timeline, profile ownership (pgTAP, needs `supabase start`)
 npm run build     # type-check + production build
 ```
@@ -118,6 +129,7 @@ For wake-word tests, set the phone's screen timeout to its maximum. Chrome stops
 ## Data and scope
 
 - Testers type their own profile, and the form asks for made-up details. Medical details entered there are labelled "self-reported, not verified", and the assistant reads them back as such. Gemini receives the profile through `get_profile` (name, address, conditions, allergies, medications, caregiver name and relationship), but never the caregiver's phone number.
+- Typed messages and voice messages go to Gemini like speech does. The transcript is shown on screen only: it is not saved, and a reload clears it.
 - With the wake-word toggle on, Chrome streams mic audio to Google's speech service to listen for the name. This is a separate data flow from Gemini, and it is opt-in.
 - The assistant offers companionship, reads back recorded information, and requests a caregiver call. It gives no medical advice and does no triage.
 - **Before any pilot with real data**, re-assess both data flows above, the Gemini service agreement and data configuration (spec §7), and the open sign-up and demo settings.
@@ -139,7 +151,9 @@ Run these in Chrome on desktop and on Android, with the phone on loudspeaker abo
 - [ ] Help is never reported as acknowledged. After "answered", ask "ছেলে কি আসছে?" → the assistant says only that the call connected.
 - [ ] The spoken-language setting holds by voice. Try each slider position; under the "preferred" and "only" settings, answering "OK" or "Thank you" must not switch the language.
 - [ ] The male voice greets you after Start and after the wake word. Three silent minutes stop the session by itself. Repeat replays the last answer.
-- [ ] Accessibility: a keyboard-only run, TalkBack announcing call-status changes, 200% zoom, and a contrast check.
+- [ ] Typed and voice messages. With nothing running, type "আমার রাতের ওষুধ কী?" → a spoken answer, with both lines in the Conversation box. Record a voice message with a long pause in the middle → one answer that covers all of it. Then press Start and ask what you typed earlier → he remembers.
+- [ ] Accessibility: a keyboard-only run, TalkBack announcing call-status changes, 200% zoom, and a contrast check. With the phone's "reduce motion" setting on (or Data Saver), the avatar stays a still picture.
+- [ ] Add to Home screen on Android: the icon is Bhaijaan's face and the app opens full screen.
 - [ ] A 15-minute conversation, including at least one reconnect, stays coherent and its full cost is recorded below.
 
 ## Calibration notes (spec §9.4)
@@ -155,10 +169,11 @@ Fill these in on a real phone with intended speakers:
 | Wake word: false triggers in 10 min of TV and family talk (`?debug` logs transcripts) | |
 | Voice choice (Achird / Schedar / Algieba / Iapetus / Charon) | Achird — approved by ear on Bangla samples (2026-10-06); confirm with older listeners |
 | Response latency and comprehension targets chosen | |
+| Transcripts: is Bangla speech written in Bengali letters? (A synthetic Indian-accent test voice came out in Latin letters in the browser, and Bhaijaan's side once showed one word in Hindi script; a `bn-BD` transcription hint made no difference.) | |
 
 ## Cost record (spec §6)
 
-Fill in after a representative 15-minute session. The on-screen readout and `console.info` on Stop give token totals.
+Fill in after a representative 15-minute session. Open the app as `/?debug` to see the token and cost readout under the controls; `console.info` on Stop gives the same totals. The readout leaves out transcripts: Gemini bills them as text output but doesn't report them (about $0.001 per minute of speech, measured 2026-10-07).
 
 | Item | Value |
 | --- | --- |
@@ -168,3 +183,13 @@ Fill in after a representative 15-minute session. The on-screen readout and `con
 | Gap explained (retries, failed sessions, usage not reported) | |
 | Hosting: Vercel plan / Supabase plan | |
 | Telephony | $0 (simulated) |
+
+## Avatar
+
+Bhaijaan's face was made with Higgsfield on 2026-10-07, for 36 credits in total.
+
+- **Still** (`app/avatar.webp`; the icons are crops of it): `gpt_image_2_5`, quality high, 2k, 1:1, opaque background, 4 variants at 2.75 credits each. Job `77c26d7e-0bbe-498a-9f89-f41cb3a500d3` was picked. Prompt: *"A cute, soft 3D animated-film-style character portrait of "Bhaijaan", a kind and gentle young Bangladeshi man who is a friendly big-brother figure … off-white cotton panjabi with a red-and-green checked gamchha scarf … head and shoulders, centred … plain solid flat pale mint background, colour #E6F2EC … no text, no logo, no religious symbols, no hat."*
+- **Loops** (`public/avatar/idle.mp4`, `public/avatar/talking.mp4`): `minimax_h3_max`, 1:1, 5 s, 768p, with the still as both start and end frame, so each loop joins seamlessly and rests on the still. 12.5 credits each. Jobs: idle `456c6750-5afa-4ed4-ab5e-2a3955bee58f` ("gentle breathing, one natural slow blink, a very slight warm head tilt … mouth closed"), talking `c20efd8f-771a-4916-af79-644de55e4f80` ("speaks warmly … natural mouth movement, small friendly nods").
+- **Processing:** `ffmpeg -an -vf scale=480:480:flags=lanczos -c:v libx264 -crf 21 -preset slow -pix_fmt yuv420p -movflags +faststart` (178 KB and 251 KB). The still is converted with `cwebp -q 82` at 512 px. The icons are face crops of the 2048 px still: `app/icon.png` 48 px, `app/apple-icon.png` 180 px, and `public/icon-192.png`, `icon-512.png` and `icon-maskable-512.png`.
+- **Behaviour** (`app/avatar.tsx`): the talking loop plays while he speaks. Otherwise the idle loop plays once and stops on the still, so nothing moves for long. Reduced motion or Data Saver shows only the still.
+
