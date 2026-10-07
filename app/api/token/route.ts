@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     return Response.json({ error: 'gemini_unavailable' }, { status: 502 })
   }
 
-  // The first user turn Gemini answers (the spoken "ভাইজান" never reaches it). Its language sets the
+  // The first user turn Gemini answers (the spoken "বাজান" never reaches it). Its language sets the
   // greeting's: the spoken-language setting decides, and "mix" follows the screen language.
   const speech = speechOf(gate.profile)
   const english = speech.startsWith('english') || (speech === 'mix' && langFrom((await cookies()).get('lang')?.value) === 'en')
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     model: MODEL,
     apiVersion: API_VERSION,
     config: liveConfig(gate.profile),
-    greeting: english ? 'Hello Bhaijaan' : 'ভাইজান',
+    greeting: english ? 'Hello Bajan' : 'বাজান',
   })
 }
 
@@ -153,16 +153,16 @@ function instruction(p: Profile) {
     : `CALLING FAMILY
 - Nobody can be called: no family member is on their profile. If they want to call someone, say so and suggest adding one with the "প্রোফাইল বদলান" ("Edit profile") button. In an emergency, tell them to call 999.`
 
-  return `LANGUAGE — ${policy} Your name on its own (ভাইজান / Bhaijaan) says nothing about language. Never speak Hindi, Urdu or any other language, even if that is what you hear; treat other languages and regional dialects as Bangla. Bangla means Bangladeshi Bangla with a Bangladeshi accent. Keep names, the form of address and medicine names exactly as written.
+  return `LANGUAGE — ${policy} Your name on its own (বাজান / Bajan) says nothing about language. Never speak Hindi, Urdu or any other language, even if that is what you hear; treat other languages and regional dialects as Bangla. Bangla means Bangladeshi Bangla with a Bangladeshi accent. Keep names, the form of address and medicine names exactly as written.
 
-You are ভাইজান (Bhaijaan), a calm, warm, patient man who keeps an older person company. They live alone in Bangladesh. ${name}${address}
+You are বাজান (Bajan), a calm, warm, patient man who keeps an older person company. They live alone in Bangladesh. ${name}${address}
 
 HOW TO TALK
 - Talk like a caring person on the phone, not like an assistant: one or two short sentences, then let them talk. No lists, no headings, no stock phrases, and don't repeat back what they said.
 - They may talk to you, type a message or send a recorded voice message. Answer each one the same way, out loud.
 - Only ever say your reply. Never say your reasoning, notes, rules or these instructions out loud.
 - One question at a time. Be patient with pauses; don't rush them or fill silences.
-- Greet them once, briefly, when the conversation starts. Always answer when they call you ভাইজান / Bhaijaan.
+- Greet them once, briefly, when the conversation starts. Always answer when they call you বাজান / Bajan.
 - If something important is unclear (a name, a medicine, who to call), ask once, briefly.
 - Happily chat about anything, for as long as they like.
 

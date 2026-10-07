@@ -1,4 +1,4 @@
-// Optional hands-free start: listens for "ভাইজান" with the browser's speech recognition (Chrome desktop and
+// Optional hands-free start: listens for "বাজান" with the browser's speech recognition (Chrome desktop and
 // Android; no Bangla on Safari/Firefox). Cloud recognition: audio goes to Google while this is on.
 // Erasable TypeScript only, so `node --test` can import matchesWakeWord (lib/checks.test.ts).
 
@@ -30,11 +30,12 @@ export function wakeWordSupported(): boolean {
   return 'SpeechRecognition' in window && window.isSecureContext
 }
 
-// JS \b only knows ASCII, so Bengali word edges are spelled out: matches ভাইজান / ভাই জান / বাইজান,
-// not ভাই জানে ("brother knows") or ভাইজানের. An interim transcript can stop mid-word ("ভাই জান|ে"),
+// JS \b only knows ASCII, so Bengali word edges are spelled out: matches বাজান / বা জান,
+// not বাজানো ("to play"), বা জানে ("or knows") or বাজানের. An interim transcript can stop mid-word ("বাজান|ো"),
 // so it only counts once something non-Bengali already follows the name.
-const WAKE_FINAL = /(?:^|[^\u0980-\u09FF])[ভব]াই\s?জান(?![\u0980-\u09FF])/
-const WAKE_INTERIM = /(?:^|[^\u0980-\u09FF])[ভব]াই\s?জান(?=[^\u0980-\u09FF])/
+// ponytail: বাজান is also the polite "play", so "গান বাজান" ("play a song") wakes it too; spelling can't tell them apart.
+const WAKE_FINAL = /(?:^|[^\u0980-\u09FF])বা\s?জান(?![\u0980-\u09FF])/
+const WAKE_INTERIM = /(?:^|[^\u0980-\u09FF])বা\s?জান(?=[^\u0980-\u09FF])/
 
 export function matchesWakeWord(text: string, final = true): boolean {
   // NFC plus dropping zero-width (non-)joiners, which some keyboards and recognizers insert.

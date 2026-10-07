@@ -20,7 +20,7 @@ export type VoiceState = 'idle' | 'connecting' | 'listening' | 'ready' | 'thinki
 // messages: typed text and recorded voice messages, each sent as one complete turn.
 export type Mode = 'talk' | 'messages'
 // One line of the on-screen transcript. `open` while words may still arrive; `cut` if he was interrupted.
-export type Entry = { id: number; who: 'user' | 'bhaijaan'; text: string; open: boolean; voice: boolean; cut: boolean }
+export type Entry = { id: number; who: 'user' | 'bajan'; text: string; open: boolean; voice: boolean; cut: boolean }
 export type ToolResult = Record<string, unknown>
 export type UsageTotals = { audioIn: number; textIn: number; audioOut: number; textOut: number; usd: number }
 // What went wrong, for the screen to word in its own language (lib/i18n.ts).
@@ -123,7 +123,7 @@ export function newEntry(who: Entry['who'], text: string, open: boolean, voice =
 }
 
 // Adds a transcription chunk to the speaker's open line, or starts one. The user's words can still be
-// arriving after Bhaijaan starts answering, so they join the user's own line above his.
+// arriving after Bajan starts answering, so they join the user's own line above his.
 export function appendTranscript(list: Entry[], who: Entry['who'], text: string): Entry[] {
   const i = list.findLastIndex((e) => e.who === who && e.open)
   if (i < 0) return [...list, newEntry(who, text, true)]
@@ -132,11 +132,11 @@ export function appendTranscript(list: Entry[], who: Entry['who'], text: string)
   return next
 }
 
-// A finished turn closes every open line; an interruption closes only Bhaijaan's (the user is still talking),
+// A finished turn closes every open line; an interruption closes only Bajan's (the user is still talking),
 // marked as cut off if he was still speaking. Lines with no words are dropped, except a voice message's.
 export function closeTranscript(list: Entry[], interrupted: boolean, cut = interrupted): Entry[] {
   return list
-    .map((e) => (e.open && (!interrupted || e.who === 'bhaijaan') ? { ...e, open: false, cut } : e))
+    .map((e) => (e.open && (!interrupted || e.who === 'bajan') ? { ...e, open: false, cut } : e))
     .filter((e) => e.open || e.voice || e.text.trim())
 }
 
@@ -363,10 +363,10 @@ export class LiveVoice {
       await this.connect(epoch)
       if (history.length) this.session?.sendClientContent({ turns: history, turnComplete: false })
       if (mode === 'talk') {
-        // The user's spoken "ভাইজান" never reaches Gemini (Start tap or browser wake word), so say it for
+        // The user's spoken "বাজান" never reaches Gemini (Start tap or browser wake word), so say it for
         // them, in the language the server picked for the greeting.
         // (cast: TS keeps the `this.token = null` narrowing from above across the awaits)
-        const greeting = (this.token as Token | null)?.greeting ?? 'ভাইজান'
+        const greeting = (this.token as Token | null)?.greeting ?? 'বাজান'
         this.session?.sendClientContent({ turns: [{ role: 'user', parts: [{ text: greeting }] }], turnComplete: true })
       }
       this.flush()
@@ -596,7 +596,7 @@ export class LiveVoice {
       this.touch()
     }
     const said = content?.outputTranscription?.text
-    if (said) this.setTranscript(appendTranscript(this.transcript, 'bhaijaan', said))
+    if (said) this.setTranscript(appendTranscript(this.transcript, 'bajan', said))
     if (content?.interrupted) {
       // Gemini also interrupts a turn whose audio already finished playing; that answer was not cut short.
       const cut = this.cutOff || this.sources.size > 0

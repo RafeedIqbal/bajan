@@ -1,10 +1,10 @@
 import type { MetadataRoute } from 'next'
 
-// Lets Android "Add to Home screen" open Bhaijaan like an app.
+// Lets Android "Add to Home screen" open Bajan like an app.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'ভাইজান (Bhaijaan)',
-    short_name: 'ভাইজান',
+    name: 'বাজান (Bajan)',
+    short_name: 'বাজান',
     description: 'বাংলায় কথা বলার সহকারী — Bangla voice companion',
     lang: 'bn',
     start_url: '/',

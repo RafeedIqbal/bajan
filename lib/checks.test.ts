@@ -7,22 +7,22 @@ import { labelAt, text } from './i18n.ts'
 import { addUsage, appendTranscript, closeTranscript, newEntry, ZERO_USAGE } from './live.ts'
 import { matchesWakeWord } from './wake.ts'
 
-test('wake word: ভাইজান in its spoken and transcribed forms', () => {
-  for (const text of ['ভাইজান', 'ভাই জান', 'বাইজান', 'ভাই\u200Cজান', 'এই ভাইজান?', 'ও ভাইজান, শুনছেন']) {
+test('wake word: বাজান in its spoken and transcribed forms', () => {
+  for (const text of ['বাজান', 'বা জান', 'বা\u200Cজান', 'এই বাজান?', 'ও বাজান, শুনছেন']) {
     assert.ok(matchesWakeWord(text), text)
   }
 })
 
 test('wake word: near misses do not start a session', () => {
-  for (const text of ['ভাই জানে', 'আমার ভাই জানে না', 'জানি', 'ভাইজানের', 'ভাই']) {
+  for (const text of ['বাজানো', 'গান বাজানোর সময়', 'বা জানে', 'বাজানের', 'বাজনা', 'বা']) {
     assert.ok(!matchesWakeWord(text), text)
   }
 })
 
 test('wake word: an interim transcript only counts once the name is complete', () => {
-  assert.ok(matchesWakeWord('ভাইজান, শুনছেন', false))
-  assert.ok(matchesWakeWord('ও ভাইজান ', false))
-  for (const text of ['ভাইজান', 'আমার ভাই জান', 'ভাইজানে']) assert.ok(!matchesWakeWord(text, false), text)
+  assert.ok(matchesWakeWord('বাজান, শুনছেন', false))
+  assert.ok(matchesWakeWord('ও বাজান ', false))
+  for (const text of ['বাজান', 'আমার বা জান', 'বাজানো']) assert.ok(!matchesWakeWord(text, false), text)
 })
 
 test('usage: each modality at its own price, thinking as text output, summed per message', () => {
@@ -54,20 +54,20 @@ test('usage: tokens the modality details leave out still count (as text)', () =>
   assert.equal(t.audioOut + t.textOut, 133 + 128)
 })
 
-test('transcript: late words join their own line, interruptions cut only Bhaijaan, turns close both', () => {
+test('transcript: late words join their own line, interruptions cut only Bajan, turns close both', () => {
   let list = appendTranscript([], 'user', 'আমার রাতের')
-  list = appendTranscript(list, 'bhaijaan', 'আপনার রাতের ওষুধ')
+  list = appendTranscript(list, 'bajan', 'আপনার রাতের ওষুধ')
   list = appendTranscript(list, 'user', ' ওষুধ কী?') // input transcription trailing the answer's start
-  assert.deepEqual(list.map((e) => [e.who, e.text]), [['user', 'আমার রাতের ওষুধ কী?'], ['bhaijaan', 'আপনার রাতের ওষুধ']])
+  assert.deepEqual(list.map((e) => [e.who, e.text]), [['user', 'আমার রাতের ওষুধ কী?'], ['bajan', 'আপনার রাতের ওষুধ']])
 
   list = closeTranscript(list, true) // they spoke over him
-  assert.deepEqual(list.map((e) => [e.who, e.open, e.cut]), [['user', true, false], ['bhaijaan', false, true]])
-  list = appendTranscript(list, 'bhaijaan', 'জি, বলুন।') // his next answer starts a new line
+  assert.deepEqual(list.map((e) => [e.who, e.open, e.cut]), [['user', true, false], ['bajan', false, true]])
+  list = appendTranscript(list, 'bajan', 'জি, বলুন।') // his next answer starts a new line
   assert.equal(list.length, 3)
 
-  list = [...closeTranscript(list, false), newEntry('user', '', true, true), newEntry('bhaijaan', ' ', true)]
+  list = [...closeTranscript(list, false), newEntry('user', '', true, true), newEntry('bajan', ' ', true)]
   list = closeTranscript(list, false) // an empty answer is dropped; a voice message stays even before its words
-  assert.deepEqual(list.map((e) => [e.who, e.open, e.voice]), [['user', false, false], ['bhaijaan', false, false], ['bhaijaan', false, false], ['user', false, true]])
+  assert.deepEqual(list.map((e) => [e.who, e.open, e.voice]), [['user', false, false], ['bajan', false, false], ['bajan', false, false], ['user', false, true]])
   assert.equal(new Set(list.map((e) => e.id)).size, list.length, 'ids are unique (React keys)')
 })
 
