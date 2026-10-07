@@ -1,13 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { text, type ErrorKey, type Lang, type Text } from '@/lib/i18n'
 import { callTool, LiveVoice, type Entry, type Mode, type ToolResult, type UsageTotals, type VoiceState } from '@/lib/live'
 import { createWakeListener, wakeWordSupported, type WakeListener } from '@/lib/wake'
 import Avatar from './avatar'
 import still from './avatar.webp'
-import { CloseIcon, MicIcon, PhoneIcon, RecordDot, RepeatIcon, SendIcon, StopIcon } from './icons'
+import { ChatIcon, CloseIcon, MicIcon, PhoneIcon, RecordDot, RepeatIcon, SendIcon, StopIcon } from './icons'
 
 type Caregiver = { name: string; relationship: string }
 type Help = { status: string; reason?: string; reused?: boolean; caregiver_name?: string }
@@ -56,7 +56,10 @@ function langOf(s: string): Lang {
   return (s.match(/\p{Script=Bengali}/gu)?.length ?? 0) >= (s.match(/\p{Script=Latin}/gu)?.length ?? 0) ? 'bn' : 'en'
 }
 
-export default function Assistant({ caregiver, lang }: { caregiver: Caregiver | null; lang: Lang }) {
+// `notice` sits above the conversation; `children` (profile, account buttons) below it.
+type Props = { caregiver: Caregiver | null; lang: Lang; notice?: ReactNode; children?: ReactNode }
+
+export default function Assistant({ caregiver, lang, notice, children }: Props) {
   const t = text(lang)
   const [state, setState] = useState<VoiceState>('idle')
   const [mode, setMode] = useState<Mode>('talk')
@@ -280,56 +283,78 @@ export default function Assistant({ caregiver, lang }: { caregiver: Caregiver | 
   }, [entries])
 
   const voiceText = running ? t[state] : ''
+  const stateText = recording ? t.recording(seconds, MAX_VOICE_SECONDS) : idleStopped && !running ? t.idleStopped : voiceText
   return (
-    <>
-      <div className="hero">
-        <Avatar state={state} recording={recording} />
-        {/* One line, always there: text appearing here must never push the buttons below it. */}
-        <p className="voice-state" aria-hidden="true">
-          {recording ? t.recording(seconds, MAX_VOICE_SECONDS) : idleStopped && !running ? t.idleStopped : voiceText}
-        </p>
-        {/* Screen readers get connection changes only; listening/speaking would talk over Bhaijaan. */}
-        <p role="status" className="sr-only">
-          {state === 'connecting' || state === 'reconnecting' ? voiceText : idleStopped ? t.idleStopped : ''}
-        </p>
-      </div>
-      <p role="alert">{error ? t.errors[error] : ''}</p>
-      {needsTap && (
-        <button className="primary" onClick={continueAudio}>
-          {t.continueAudio}
-        </button>
-      )}
+    <div className="home-grid">
+      {/* Phones: one column in this order. Computers: these on the left, the conversation on the right. */}
+      <div className="home-col">
+        <section className="card hero-card">
+          <div className="hero">
+            <Avatar state={state} recording={recording} />
+            {/* Always there, one line tall: text appearing here must never push the buttons below it. */}
+            <p className="voice-state" aria-hidden="true" data-hint={stateText ? undefined : ''}>
+              {stateText || t.idleHint}
+            </p>
+            {/* Screen readers get connection changes only; listening/speaking would talk over Bhaijaan. */}
+            <p role="status" className="sr-only">
+              {state === 'connecting' || state === 'reconnecting' ? voiceText : idleStopped ? t.idleStopped : ''}
+            </p>
+          </div>
+          <p role="alert">{error ? t.errors[error] : ''}</p>
+          {needsTap && (
+            <button className="primary continue" onClick={continueAudio}>
+              {t.continueAudio}
+            </button>
+          )}
 
-      <div className="controls">
-        {talking ? (
-          <button className="primary" onClick={stop}>
-            <StopIcon />
-            {t.stop}
-          </button>
-        ) : (
-          <button className="primary" onClick={start} aria-disabled={recording || undefined}>
-            <MicIcon />
-            {t.start}
-          </button>
-        )}
-        <button className="help" onClick={askHelp}>
-          <PhoneIcon />
-          {t.help}
-        </button>
-        {!caregiver && (
-          <p className="note">
-            {t.noCaregiverNote} <a href="/profile">{t.addCaregiver}</a>
-          </p>
-        )}
-        {/* aria-disabled keeps keyboard focus when playback starts; repeat() ignores taps it can't serve. */}
-        <button onClick={() => voice.current?.repeat()} aria-disabled={recording || (state !== 'listening' && state !== 'ready')}>
-          <RepeatIcon />
-          {t.repeat}
-        </button>
+          <div className="controls">
+            {talking ? (
+              <button className="primary" onClick={stop}>
+                <StopIcon />
+                {t.stop}
+              </button>
+            ) : (
+              <button className="primary" onClick={start} aria-disabled={recording || undefined}>
+                <MicIcon />
+                {t.start}
+              </button>
+            )}
+            <button className="help" onClick={askHelp}>
+              <PhoneIcon />
+              {t.help}
+            </button>
+            {!caregiver && (
+              <p className="note">
+                {t.noCaregiverNote} <a href="/profile">{t.addCaregiver}</a>
+              </p>
+            )}
+            {/* aria-disabled keeps keyboard focus when playback starts; repeat() ignores taps it can't serve. */}
+            <button onClick={() => voice.current?.repeat()} aria-disabled={recording || (state !== 'listening' && state !== 'ready')}>
+              <RepeatIcon />
+              {t.repeat}
+            </button>
+          </div>
+        </section>
+
+        <section className="card" aria-labelledby="call-status">
+          <div className="status-head">
+            <h2 id="call-status" className="card-title">
+              <PhoneIcon />
+              {t.callStatus}
+            </h2>
+            <p role="status" className="pill" data-tone={helpTone(help)}>
+              {help ? helpText(t, help, help.caregiver_name || caregiver?.name || '') : t.noRequest}
+            </p>
+          </div>
+          <p className="note">{t.testCall}</p>
+        </section>
       </div>
 
       {/* A held Enter key would repeat onto "Yes" once the dialog takes focus. */}
       <dialog ref={dialog} aria-labelledby="confirm-call" onKeyDown={(e) => e.repeat && e.preventDefault()}>
+        <span className="dialog-icon" aria-hidden="true">
+          <PhoneIcon />
+        </span>
         <p id="confirm-call">
           {caregiver && t.confirmCall(caregiver.name + (caregiver.relationship ? ` (${caregiver.relationship})` : ''))}
         </p>
@@ -343,113 +368,116 @@ export default function Assistant({ caregiver, lang }: { caregiver: Caregiver | 
         </div>
       </dialog>
 
-      <section className="card" aria-labelledby="call-status">
-        <div className="status-head">
-          <h2 id="call-status">{t.callStatus}</h2>
-          <p role="status" className="pill" data-tone={helpTone(help)}>
-            {help ? helpText(t, help, help.caregiver_name || caregiver?.name || '') : t.noRequest}
-          </p>
-        </div>
-        <p className="note">{t.testCall}</p>
-      </section>
+      <div className="home-col">
+        {notice}
+        <section className="card" aria-labelledby="conversation">
+          <h2 id="conversation" className="card-title">
+            <ChatIcon />
+            {t.conversation}
+          </h2>
+          {entries.length ? (
+            // Not a live region: Bhaijaan's answers are spoken already. Focusable so keyboards can scroll it.
+            <ol
+              ref={log}
+              className="transcript"
+              aria-labelledby="conversation"
+              tabIndex={0}
+              onScroll={(e) => {
+                const el = e.currentTarget
+                atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40
+              }}
+            >
+              {entries.map((e) => (
+                <li key={e.id} className={e.who}>
+                  {e.who === 'bhaijaan' && <Image src={still} alt="" width={32} height={32} />}
+                  <div className="bubble">
+                    {/* The name stays visible: left/right alone must not be the only way to tell who spoke. */}
+                    <strong className="who">
+                      {e.who === 'user' ? t.you : t.title}
+                      {e.voice && <MicIcon />}
+                      <span className="sr-only">:</span>
+                    </strong>{' '}
+                    <span lang={e.text ? langOf(e.text) : lang}>
+                      {e.voice && !e.text && t.voiceMessage}
+                      {e.text}
+                      {e.cut && ' …'}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <div className="transcript-empty">
+              <ChatIcon />
+              <p className="note">{t.transcriptEmpty}</p>
+            </div>
+          )}
 
-      <section className="card" aria-labelledby="conversation">
-        <h2 id="conversation">{t.conversation}</h2>
-        {entries.length ? (
-          // Not a live region: Bhaijaan's answers are spoken already. Focusable so keyboards can scroll it.
-          <ol
-            ref={log}
-            className="transcript"
-            aria-labelledby="conversation"
-            tabIndex={0}
-            onScroll={(e) => {
-              const el = e.currentTarget
-              atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40
-            }}
-          >
-            {entries.map((e) => (
-              <li key={e.id} className={e.who}>
-                {e.who === 'bhaijaan' && <Image src={still} alt="" width={32} height={32} />}
-                <div className="bubble">
-                  {/* The name stays visible: left/right alone must not be the only way to tell who spoke. */}
-                  <strong className="who">
-                    {e.who === 'user' ? t.you : t.title}
-                    {e.voice && <MicIcon />}
-                    <span className="sr-only">:</span>
-                  </strong>{' '}
-                  <span lang={e.text ? langOf(e.text) : lang}>
-                    {e.voice && !e.text && t.voiceMessage}
-                    {e.text}
-                    {e.cut && ' …'}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p className="note">{t.transcriptEmpty}</p>
-        )}
-
-        <form onSubmit={sendText}>
-          <label>
-            {t.typeLabel}
-            <input
-              type="text"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              maxLength={500}
-              enterKeyHint="send"
-              autoComplete="off"
-            />
-          </label>
-          <div className="row">
-            <button type="submit">
-              <SendIcon />
-              {t.send}
-            </button>
+          <form onSubmit={sendText}>
+            <label htmlFor="message">{t.typeLabel}</label>
+            <div className="composer-row">
+              <input
+                id="message"
+                type="text"
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                maxLength={500}
+                enterKeyHint="send"
+                autoComplete="off"
+              />
+              <button type="submit" className="primary">
+                <SendIcon />
+                {t.send}
+              </button>
+            </div>
             {!recording && !talking && (
-              <button type="button" ref={recordButton} onClick={record}>
+              <button type="button" className="tonal" ref={recordButton} onClick={record}>
                 <MicIcon />
                 {t.recordVoice}
               </button>
             )}
-          </div>
-        </form>
-        {recording && (
-          <div className="recording-bar">
-            <p className="recording">
-              <RecordDot />
-              {t.recording(seconds, MAX_VOICE_SECONDS)}
-            </p>
-            {/* Focus moves here because the record button it replaces is gone. */}
-            <button className="primary" autoFocus onClick={() => tap() && finishRecording(true)}>
-              <SendIcon />
-              {t.sendVoice}
-            </button>
-            <button onClick={() => tap() && finishRecording(false)}>
-              <CloseIcon />
-              {t.cancel}
-            </button>
-          </div>
-        )}
-        <p className="note">{t.messageNote}</p>
-      </section>
-
-      {wakeSupported && (
-        <section className="card">
-          <label className="check">
-            <input type="checkbox" checked={wakeOn} onChange={toggleWake} /> {t.wakeToggle}
-          </label>
-          <p className="note">{t.wakeNote}</p>
+          </form>
+          {recording && (
+            <div className="recording-bar">
+              <p className="recording">
+                <RecordDot />
+                {t.recording(seconds, MAX_VOICE_SECONDS)}
+              </p>
+              {/* Focus moves here because the record button it replaces is gone. */}
+              <button className="primary" autoFocus onClick={() => tap() && finishRecording(true)}>
+                <SendIcon />
+                {t.sendVoice}
+              </button>
+              <button onClick={() => tap() && finishRecording(false)}>
+                <CloseIcon />
+                {t.cancel}
+              </button>
+            </div>
+          )}
+          <p className="note">{t.messageNote}</p>
         </section>
-      )}
 
-      {debug && usage && (usage.usd > 0 || running) && (
-        <p className="cost" lang="en">
-          Gemini ≈ ${usage.usd.toFixed(4)} · in: audio {usage.audioIn}, text {usage.textIn} · out: audio{' '}
-          {usage.audioOut}, text {usage.textOut} tokens
-        </p>
-      )}
-    </>
+        {wakeSupported && (
+          <section className="card">
+            <label className="switch-row">
+              <span>{t.wakeToggle}</span>
+              <input type="checkbox" className="switch" checked={wakeOn} onChange={toggleWake} aria-describedby="wake-note" />
+            </label>
+            <p id="wake-note" className="note">
+              {t.wakeNote}
+            </p>
+          </section>
+        )}
+
+        {children}
+
+        {debug && usage && (usage.usd > 0 || running) && (
+          <p className="cost" lang="en">
+            Gemini ≈ ${usage.usd.toFixed(4)} · in: audio {usage.audioIn}, text {usage.textIn} · out: audio{' '}
+            {usage.audioOut}, text {usage.textOut} tokens
+          </p>
+        )}
+      </div>
+    </div>
   )
 }

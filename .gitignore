@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/.playwright-cli/
+/output/playwright/
 
 # next.js
 /.next/
@@ -40,3 +42,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 !.env.example
+.claude/launch.json

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import { MediaModality } from '@google/genai'
+import { labelAt, text } from './i18n.ts'
 import { addUsage, appendTranscript, closeTranscript, newEntry, ZERO_USAGE } from './live.ts'
 import { matchesWakeWord } from './wake.ts'
 
@@ -93,7 +94,7 @@ test('colours: every text/background pair in globals.css meets WCAG AAA (7:1)', 
   }
   const pairs: [string, string][] = [
     ['ink', 'bg'], ['ink', 'surface'], ['ink', 'brand-soft'], ['ink', 'user-bubble'], ['ink', 'tone-active'], ['ink', 'tone-bad'],
-    ['muted', 'bg'], ['muted', 'surface'], ['muted', 'brand-soft'],
+    ['muted', 'bg'], ['muted', 'surface'], ['muted', 'brand-soft'], ['muted', 'user-bubble'],
     ['brand', 'surface'], ['brand', 'bg'], ['brand', 'brand-soft'],
     ['help', 'surface'], ['help', 'tone-bad'],
   ]
@@ -102,4 +103,14 @@ test('colours: every text/background pair in globals.css meets WCAG AAA (7:1)', 
   for (const bg of ['brand', 'brand-strong', 'help', 'help-strong']) assert.ok(contrast('#ffffff', token(bg)) >= 7, `white on ${bg}`)
   // Control borders: 3:1 against what they sit on (WCAG 1.4.11).
   for (const bg of ['bg', 'surface']) assert.ok(contrast(token('line'), token(bg)) >= 3, `line on ${bg}`)
+})
+
+test('guide: every {label} it quotes is a real on-screen label, and both languages have the same sections', () => {
+  for (const lang of ['bn', 'en'] as const) {
+    const t = text(lang)
+    const refs = JSON.stringify(t.guide).match(/\{[\w.]+\}/g) ?? []
+    assert.ok(refs.length > 10, `${lang}: placeholders found`)
+    for (const ref of refs) assert.ok(labelAt(t, ref.slice(1, -1)), `${lang}: ${ref} names no label`)
+  }
+  assert.deepEqual(text('bn').guide.sections.map((s) => s.id), text('en').guide.sections.map((s) => s.id))
 })

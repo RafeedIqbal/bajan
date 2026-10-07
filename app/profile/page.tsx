@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { DEFAULT_SPEECH, langFrom, SPEECH, text, type Speech } from '@/lib/i18n'
 import { createClient } from '@/lib/supabase'
 import { saveProfile, saveSampleProfile, signOut } from '../actions'
+import { ArrowLeftIcon, SignOutIcon } from '../icons'
 import LanguageSlider from '../language-slider'
 import SubmitButton from '../submit-button'
 
@@ -31,13 +32,16 @@ export default async function ProfilePage({ searchParams }: PageProps<'/profile'
 
   return (
     <main>
-      {profile && (
-        <p>
-          <a href="/">{t.back}</a>
-        </p>
-      )}
-      <h1>{profile ? t.editProfile : t.setupTitle}</h1>
-      <p>{t.intro}</p>
+      <div className="page-head">
+        {profile && (
+          <a className="text-link" href="/">
+            <ArrowLeftIcon />
+            {t.back}
+          </a>
+        )}
+        <h1>{profile ? t.editProfile : t.setupTitle}</h1>
+        <p className="lead">{t.intro}</p>
+      </div>
       <p className="banner">{t.madeUp}</p>
       {e === 'save' && <p role="alert">{t.saveError}</p>}
 
@@ -49,17 +53,19 @@ export default async function ProfilePage({ searchParams }: PageProps<'/profile'
         </form>
       )}
 
-      <form>
+      <form className="form-stack">
         <fieldset className="card">
           <legend>{t.sections.about}</legend>
-          <label>
-            {t.label.name}
-            <input type="text" name="preferred_name" maxLength={200} defaultValue={str(p.preferred_name)} autoComplete="off" />
-          </label>
-          <label>
-            {t.label.formOfAddress}
-            <input type="text" name="form_of_address" maxLength={200} defaultValue={str(p.form_of_address)} autoComplete="off" />
-          </label>
+          <div className="fields-2">
+            <label>
+              {t.label.name}
+              <input type="text" name="preferred_name" maxLength={200} defaultValue={str(p.preferred_name)} autoComplete="off" />
+            </label>
+            <label>
+              {t.label.formOfAddress}
+              <input type="text" name="form_of_address" maxLength={200} defaultValue={str(p.form_of_address)} autoComplete="off" />
+            </label>
+          </div>
           <LanguageSlider
             label={t.label.speech}
             scale={t.speechScale}
@@ -98,14 +104,16 @@ export default async function ProfilePage({ searchParams }: PageProps<'/profile'
 
         <fieldset className="card">
           <legend>{t.label.caregiver}</legend>
-          <label>
-            {t.label.caregiverName}
-            <input type="text" name="caregiver_name" maxLength={200} defaultValue={str(p.caregiver?.name)} autoComplete="off" />
-          </label>
-          <label>
-            {t.label.caregiverRelationship}
-            <input type="text" name="caregiver_relationship" maxLength={200} defaultValue={str(p.caregiver?.relationship)} autoComplete="off" />
-          </label>
+          <div className="fields-2">
+            <label>
+              {t.label.caregiverName}
+              <input type="text" name="caregiver_name" maxLength={200} defaultValue={str(p.caregiver?.name)} autoComplete="off" />
+            </label>
+            <label>
+              {t.label.caregiverRelationship}
+              <input type="text" name="caregiver_relationship" maxLength={200} defaultValue={str(p.caregiver?.relationship)} autoComplete="off" />
+            </label>
+          </div>
           <label>
             {t.label.caregiverPhone}
             <input type="tel" name="caregiver_phone" maxLength={30} defaultValue={str(p.caregiver?.phone)} autoComplete="off" />
@@ -118,7 +126,10 @@ export default async function ProfilePage({ searchParams }: PageProps<'/profile'
       </form>
 
       <form>
-        <SubmitButton formAction={signOut}>{t.signOut}</SubmitButton>
+        <SubmitButton formAction={signOut}>
+          <SignOutIcon />
+          {t.signOut}
+        </SubmitButton>
       </form>
     </main>
   )
