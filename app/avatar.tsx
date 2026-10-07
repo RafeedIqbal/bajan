@@ -6,7 +6,7 @@ import still from './avatar.webp'
 
 const SETTLE_MS = 400 // a short gap between audio chunks must not flip him back to idle mid-sentence
 
-// Bhaijaan's face. Both clips (Higgsfield, see README) start and end on the still, so they swap without a jump.
+// Bajan's face. Both clips (Higgsfield, see README) start and end on the still, so they swap without a jump.
 // While he speaks, the talking clip loops; when he stops (and on load) the idle clip plays once and rests on
 // the still, so nothing moves for long while he waits (WCAG 2.2.2). Reduced motion or data saver: still only.
 // ponytail: the talking loop is not synced to his words.

@@ -295,7 +295,7 @@ export default function Assistant({ caregiver, lang, notice, children }: Props) 
             <p className="voice-state" aria-hidden="true" data-hint={stateText ? undefined : ''}>
               {stateText || t.idleHint}
             </p>
-            {/* Screen readers get connection changes only; listening/speaking would talk over Bhaijaan. */}
+            {/* Screen readers get connection changes only; listening/speaking would talk over Bajan. */}
             <p role="status" className="sr-only">
               {state === 'connecting' || state === 'reconnecting' ? voiceText : idleStopped ? t.idleStopped : ''}
             </p>
@@ -376,7 +376,7 @@ export default function Assistant({ caregiver, lang, notice, children }: Props) 
             {t.conversation}
           </h2>
           {entries.length ? (
-            // Not a live region: Bhaijaan's answers are spoken already. Focusable so keyboards can scroll it.
+            // Not a live region: Bajan's answers are spoken already. Focusable so keyboards can scroll it.
             <ol
               ref={log}
               className="transcript"
@@ -389,7 +389,7 @@ export default function Assistant({ caregiver, lang, notice, children }: Props) 
             >
               {entries.map((e) => (
                 <li key={e.id} className={e.who}>
-                  {e.who === 'bhaijaan' && <Image src={still} alt="" width={32} height={32} />}
+                  {e.who === 'bajan' && <Image src={still} alt="" width={32} height={32} />}
                   <div className="bubble">
                     {/* The name stays visible: left/right alone must not be the only way to tell who spoke. */}
                     <strong className="who">

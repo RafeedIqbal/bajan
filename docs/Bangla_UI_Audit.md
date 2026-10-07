@@ -10,9 +10,9 @@ Use familiar Bangladeshi Bangla, respectful address and direct instructions. Kee
 | --- | --- |
 | থামুন | থামান — the button stops the conversation; it is not telling the user to stop speaking. |
 | চালিয়ে যেতে চাপুন | উত্তর শুনতে চাপুন — identifies what the audio button does. |
-| যে নামে ডাকবে | ভাইজান আপনাকে যে নামে ডাকবেন — identifies the speaker and uses respectful language. |
+| যে নামে ডাকবে | বাজান আপনাকে যে নামে ডাকবেন — identifies the speaker and uses respectful language. |
 | বাংলা বেশি / মিশিয়ে (আমার মতো) | মূলত বাংলা / আপনার কথার ভাষায় — clarifies the five spoken-language choices. |
-| “ভাইজান” ডাক শুনুন | “ভাইজান” বলে ডাকলে চালু হবে — describes what enabling the switch does. |
+| “বাজান” ডাক শুনুন | “বাজান” বলে ডাকলে চালু হবে — describes what enabling the switch does. |
 | সব ঘর ঐচ্ছিক | কোনো ঘর পূরণ করাই বাধ্যতামূলক নয় — explains optional fields in familiar words. |
 | চিকিৎসা তথ্য / সর্বশেষ হালনাগাদ | স্বাস্থ্যতথ্যের উৎস / স্বাস্থ্যতথ্য হালনাগাদের তারিখ — identifies what the stored source and date describe. |
 

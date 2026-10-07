@@ -1,9 +1,9 @@
-# ভাইজান (Bhaijaan)
+# বাজান (Bajan)
 
 A Bangla voice assistant proof of concept for older adults who live alone. It is built from
 [`docs/Bangla_Voice_Assistant_MVP.md`](docs/Bangla_Voice_Assistant_MVP.md). It does three things:
 
-- holds a spoken conversation (Gemini Live, `gemini-3.8-live`) in Bangla, English or a mix: Bhaijaan replies in whatever language he's spoken to
+- holds a spoken conversation (Gemini Live, `gemini-3.8-live`) in Bangla, English or a mix: Bajan replies in whatever language he's spoken to
 - also takes typed messages and recorded voice messages, always answers out loud, and writes both sides on screen
 - answers from a small structured profile that each tester fills in when they first sign in
 - requests a call to one enrolled caregiver and shows the real status
@@ -23,9 +23,9 @@ Three ways to talk to him, all on the home page:
 - **Type a message** (লিখে পাঠান): no mic needed. Works during a live conversation too.
 - **Record a voice message** (ভয়েস মেসেজ): like a WhatsApp voice note, up to 2 minutes, sent as one message however long you pause. Not shown during a live conversation (just speak).
 
-Bhaijaan always answers out loud, and the **Conversation** box shows both sides as text (Gemini's own transcription). Switching between messages and Start keeps the conversation going; Stop ends it, and the next one starts fresh.
+Bajan always answers out loud, and the **Conversation** box shows both sides as text (Gemini's own transcription). Switching between messages and Start keeps the conversation going; Stop ends it, and the next one starts fresh.
 
-On Android, Chrome's **Add to Home screen** installs it with Bhaijaan's face as the app icon.
+On Android, Chrome's **Add to Home screen** installs it with Bajan's face as the app icon.
 
 **How to use** (ব্যবহারের নিয়ম) in the header, and on the home and sign-in pages, opens a step-by-step guide at `/guide`: the three ways to talk, calling family, language settings, the wake word, installing on a phone, troubleshooting and privacy. It is public, so testers can read it before signing in. The guide quotes on-screen labels from `lib/i18n.ts` (`{start}` → the Start button's words), and `npm test` checks each one exists.
 
@@ -35,7 +35,7 @@ The layout adapts to the screen: one column on phones (avatar, Start, Get help a
 
 Every page has **বাংলা / English** buttons at the top. They switch the on-screen text only (remembered in a cookie). Everyone, demo users included, can change their profile with the **Edit profile** button on the home page.
 
-Bhaijaan's *spoken* language is a profile setting: a 5-point slider from **Bangla only** through **Bangla preferred**, **Mix (follow me)** and **English preferred** to **English only**. New profiles default to Mix and the demo sample to Bangla preferred. The "preferred" settings switch only on whole sentences in the other language, never on a quick "OK" or "thank you". Bhaijaan never answers in a third language such as Hindi or Urdu. His first greeting follows the setting (Mix uses the screen language).
+Bajan's *spoken* language is a profile setting: a 5-point slider from **Bangla only** through **Bangla preferred**, **Mix (follow me)** and **English preferred** to **English only**. New profiles default to Mix and the demo sample to Bangla preferred. The "preferred" settings switch only on whole sentences in the other language, never on a quick "OK" or "thank you". Bajan never answers in a third language such as Hindi or Urdu. His first greeting follows the setting (Mix uses the screen language).
 
 ## Stack
 
@@ -159,7 +159,7 @@ Run these in Chrome on desktop and on Android, with the phone on loudspeaker abo
 - [ ] The male voice greets you after Start and after the wake word. Three silent minutes stop the session by itself. Repeat replays the last answer.
 - [ ] Typed and voice messages. With nothing running, type "আমার রাতের ওষুধ কী?" → a spoken answer, with both lines in the Conversation box. Record a voice message with a long pause in the middle → one answer that covers all of it. Then press Start and ask what you typed earlier → he remembers.
 - [ ] Accessibility: a keyboard-only run, TalkBack announcing call-status changes, 200% zoom, and a contrast check. With the phone's "reduce motion" setting on (or Data Saver), the avatar stays a still picture.
-- [ ] Add to Home screen on Android: the icon is Bhaijaan's face and the app opens full screen.
+- [ ] Add to Home screen on Android: the icon is Bajan's face and the app opens full screen.
 - [ ] A 15-minute conversation, including at least one reconnect, stays coherent and its full cost is recorded below.
 
 ## Calibration notes (spec §9.4)
@@ -172,10 +172,10 @@ Fill these in on a real phone with intended speakers:
 | Self-interruption on loudspeaker during long answers | |
 | Quiet speech detected? Playback loud enough? | |
 | Wake word: hits out of 20 tries (older Bangladeshi speaker) | |
-| Wake word: false triggers in 10 min of TV and family talk (`?debug` logs transcripts) | |
+| Wake word: false triggers in 10 min of TV and family talk (`?debug` logs transcripts). বাজান is also the polite "play", so "গান বাজান" ("play a song") will trigger it | |
 | Voice choice (Achird / Schedar / Algieba / Iapetus / Charon) | Achird — approved by ear on Bangla samples (2026-10-06); confirm with older listeners |
 | Response latency and comprehension targets chosen | |
-| Transcripts: is Bangla speech written in Bengali letters? (A synthetic Indian-accent test voice came out in Latin letters in the browser, and Bhaijaan's side once showed one word in Hindi script; a `bn-BD` transcription hint made no difference.) | |
+| Transcripts: is Bangla speech written in Bengali letters? (A synthetic Indian-accent test voice came out in Latin letters in the browser, and Bajan's side once showed one word in Hindi script; a `bn-BD` transcription hint made no difference.) | |
 
 ## Cost record (spec §6)
 
@@ -192,7 +192,7 @@ Fill in after a representative 15-minute session. Open the app as `/?debug` to s
 
 ## Avatar
 
-Bhaijaan's face was made with Higgsfield on 2026-10-07, for 36 credits in total.
+Bajan's face was made with Higgsfield on 2026-10-07, for 36 credits in total.
 
 - **Still** (`app/avatar.webp`; the icons are crops of it): `gpt_image_2_5`, quality high, 2k, 1:1, opaque background, 4 variants at 2.75 credits each. Job `77c26d7e-0bbe-498a-9f89-f41cb3a500d3` was picked. Prompt: *"A cute, soft 3D animated-film-style character portrait of "Bhaijaan", a kind and gentle young Bangladeshi man who is a friendly big-brother figure … off-white cotton panjabi with a red-and-green checked gamchha scarf … head and shoulders, centred … plain solid flat pale mint background, colour #E6F2EC … no text, no logo, no religious symbols, no hat."*
 - **Loops** (`public/avatar/idle.mp4`, `public/avatar/talking.mp4`): `minimax_h3_max`, 1:1, 5 s, 768p, with the still as both start and end frame, so each loop joins seamlessly and rests on the still. 12.5 credits each. Jobs: idle `456c6750-5afa-4ed4-ab5e-2a3955bee58f` ("gentle breathing, one natural slow blink, a very slight warm head tilt … mouth closed"), talking `c20efd8f-771a-4916-af79-644de55e4f80` ("speaks warmly … natural mouth movement, small friendly nods").

@@ -1,5 +1,5 @@
 // On-screen text in Bangla and English, chosen by the `lang` cookie (the toggle at the top of every page).
-// Bhaijaan's spoken language is separate: a profile setting (SPEECH below).
+// Bajan's spoken language is separate: a profile setting (SPEECH below).
 
 export type Lang = 'bn' | 'en'
 
@@ -7,7 +7,7 @@ export function langFrom(cookie: string | undefined): Lang {
   return cookie === 'en' ? 'en' : 'bn'
 }
 
-// Which language Bhaijaan speaks (a profile setting, separate from the screen language), as a 5-point scale.
+// Which language Bajan speaks (a profile setting, separate from the screen language), as a 5-point scale.
 export const SPEECH = ['bangla_only', 'bangla_preferred', 'mix', 'english_preferred', 'english_only'] as const
 export type Speech = (typeof SPEECH)[number]
 export const DEFAULT_SPEECH: Speech = 'mix'
@@ -29,8 +29,8 @@ export type GuideSection = {
 }
 
 const bn = {
-  title: 'ভাইজান',
-  tagline: 'গল্প করুন, প্রশ্ন করুন — ভাইজান আপনার কথা শুনবেন।',
+  title: 'বাজান',
+  tagline: 'গল্প করুন, প্রশ্ন করুন — বাজান আপনার কথা শুনবেন।',
 
   // conversation
   connecting: 'সংযোগ হচ্ছে…',
@@ -48,7 +48,7 @@ const bn = {
 
   // transcript and messages
   conversation: 'কথোপকথন',
-  transcriptEmpty: 'আপনার ও ভাইজানের কথা এখানে লেখা হিসেবে দেখা যাবে।',
+  transcriptEmpty: 'আপনার ও বাজানের কথা এখানে লেখা হিসেবে দেখা যাবে।',
   you: 'আপনি',
   voiceMessage: 'ভয়েস মেসেজ',
   typeLabel: 'লিখে পাঠান',
@@ -57,7 +57,7 @@ const bn = {
   recording: (s: number, max: number) => `রেকর্ড হচ্ছে… ${clock(s, max).replace(/\d/g, (d) => BANGLA_DIGITS[Number(d)])}`,
   sendVoice: 'ভয়েস মেসেজ পাঠান',
   cancel: 'বাতিল করুন',
-  messageNote: 'ভাইজান কথা বলে উত্তর দেন। উত্তরটি এখানেও পড়তে পারবেন।',
+  messageNote: 'বাজান কথা বলে উত্তর দেন। উত্তরটি এখানেও পড়তে পারবেন।',
 
   // help request
   confirmCall: (who: string) => `${who}-কে ফোন করব?`,
@@ -80,8 +80,8 @@ const bn = {
   reused: ' আগের অনুরোধটি দেখানো হচ্ছে; নতুন করে ফোন করা হয়নি। এক মিনিট পরে আবার চেষ্টা করুন।',
 
   // wake word
-  wakeToggle: '“ভাইজান” বলে ডাকলে চালু হবে',
-  wakeNote: 'এটি চালু থাকলে আপনার ডাক শোনার জন্য মাইক্রোফোনের শব্দ Google-এ পাঠানো হয়। “ভাইজান” বলে ডাকলে কথোপকথন শুরু হবে।',
+  wakeToggle: '“বাজান” বলে ডাকলে চালু হবে',
+  wakeNote: 'এটি চালু থাকলে আপনার ডাক শোনার জন্য মাইক্রোফোনের শব্দ Google-এ পাঠানো হয়। “বাজান” বলে ডাকলে কথোপকথন শুরু হবে।',
 
   errors: {
     offline: 'সংযোগ করা যায়নি। ইন্টারনেট চালু আছে কি না দেখে আবার চেষ্টা করুন।',
@@ -93,14 +93,14 @@ const bn = {
     message_unsent: 'সংযোগ কেটে গিয়েছিল; আপনার শেষ বার্তাটি হয়তো পৌঁছায়নি। উত্তর না পেলে আবার পাঠান।',
     signed_out: 'আপনি সাইন আউট হয়ে গেছেন। পাতাটি আবার খুলে সাইন ইন করুন।',
     no_profile: 'প্রোফাইল পাওয়া যায়নি। পাতাটি নতুন করে খুলুন।',
-    unavailable: 'ভাইজান এখন সাড়া দিচ্ছেন না। একটু পরে আবার চেষ্টা করুন।',
+    unavailable: 'বাজান এখন সাড়া দিচ্ছেন না। একটু পরে আবার চেষ্টা করুন।',
     help_signed_out: 'আপনি সাইন আউট হয়ে গেছেন। পাতাটি আবার খুলে সাইন ইন করুন। প্রয়োজনে নিজে পরিবারের সদস্যকে ফোন করুন। জরুরি হলে ৯৯৯-এ ফোন করুন।',
     help_not_sent: 'ফোন করার অনুরোধ পাঠানো যায়নি। প্রয়োজনে নিজে পরিবারের সদস্যকে ফোন করুন। জরুরি হলে ৯৯৯-এ ফোন করুন।',
     help_unsent: 'ফোন করার অনুরোধটি পৌঁছায়নি। আবার “সাহায্য চাই” চাপুন। প্রয়োজনে নিজে পরিবারের সদস্যকে ফোন করুন। জরুরি হলে ৯৯৯-এ ফোন করুন।',
     no_caregiver: 'ফোন করার জন্য পরিবারের কাউকে যোগ করা হয়নি। “প্রোফাইল বদলান” চেপে একজনকে যোগ করুন। জরুরি হলে ৯৯৯-এ ফোন করুন।',
     wake_not_allowed: 'আপনার ডাক শোনার জন্য মাইক্রোফোন ব্যবহারের অনুমতি দিন।',
     wake_no_bangla: 'এই ব্রাউজার বাংলায় বলা কথা চিনতে পারে না। “শুরু করুন” চেপে কথা বলুন।',
-    wake_failed: 'এই ব্রাউজারে “ভাইজান” ডাক শুনে চালু হওয়ার সুবিধাটি কাজ করছে না। “শুরু করুন” চেপে কথা বলুন।',
+    wake_failed: 'এই ব্রাউজারে “বাজান” ডাক শুনে চালু হওয়ার সুবিধাটি কাজ করছে না। “শুরু করুন” চেপে কথা বলুন।',
   },
 
   // home
@@ -111,7 +111,7 @@ const bn = {
   field: {
     name: 'নাম',
     formOfAddress: 'সম্বোধন',
-    speech: 'ভাইজানের কথা বলার ভাষা',
+    speech: 'বাজানের কথা বলার ভাষা',
     address: 'ঠিকানা',
     preferences: 'পছন্দ',
     conditions: 'রোগ',
@@ -125,14 +125,14 @@ const bn = {
   // profile form
   setupTitle: 'আপনার প্রোফাইল',
   sections: { about: 'আপনার সম্পর্কে', health: 'স্বাস্থ্য ও ওষুধ' },
-  intro: 'কোনো ঘর পূরণ করাই বাধ্যতামূলক নয়। যা জানাতে চান, শুধু তা লিখুন। ভাইজান এই তথ্য দেখে উত্তর দেবেন।',
+  intro: 'কোনো ঘর পূরণ করাই বাধ্যতামূলক নয়। যা জানাতে চান, শুধু তা লিখুন। বাজান এই তথ্য দেখে উত্তর দেবেন।',
   madeUp: 'এটি পরীক্ষামূলক সংস্করণ। নিজের আসল ব্যক্তিগত বা স্বাস্থ্যতথ্যের বদলে বানানো তথ্য দিন।',
   saveError: 'তথ্য সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।',
   useSample: 'নমুনা প্রোফাইল দিয়ে শুরু করুন',
   speechScale: ['শুধু বাংলা', 'মূলত বাংলা', 'আপনার কথার ভাষায়', 'মূলত ইংরেজি', 'শুধু ইংরেজি'],
   label: {
-    name: 'ভাইজান আপনাকে যে নামে ডাকবেন',
-    speech: 'ভাইজান কোন ভাষায় কথা বলবেন',
+    name: 'বাজান আপনাকে যে নামে ডাকবেন',
+    speech: 'বাজান কোন ভাষায় কথা বলবেন',
     formOfAddress: 'সম্বোধন — যেমন নানু, চাচা, আপা',
     address: 'ঠিকানা',
     preferences: 'পছন্দ — প্রতি লাইনে একটি',
@@ -183,28 +183,28 @@ const bn = {
   idleHint: 'কথা বলতে “শুরু করুন” চাপুন',
   features: ['বাংলায়, ইংরেজিতে বা মিশিয়ে কথা বলুন', 'প্রোফাইলে লেখা ওষুধ, ঠিকানা ও অন্য তথ্য শুনুন', 'পরিবারকে ফোন করার সুবিধাটি পরীক্ষা করুন — আসল কল নয়'],
   guideNav: 'ব্যবহারের নিয়ম',
-  guideLink: 'ভাইজান কীভাবে ব্যবহার করবেন',
+  guideLink: 'বাজান কীভাবে ব্যবহার করবেন',
   guide: {
-    title: 'ভাইজান ব্যবহারের নিয়ম',
-    intro: 'ভাইজান কীভাবে ব্যবহার করবেন, এখানে ধাপে ধাপে বলা আছে। চাইলে পরিবারের কাউকে সঙ্গে নিয়ে পড়ুন।',
-    emergency: 'জরুরি অবস্থায় সরাসরি ৯৯৯-এ ফোন করুন। ভাইজান জরুরি সেবা দিতে পারেন না।',
+    title: 'বাজান ব্যবহারের নিয়ম',
+    intro: 'বাজান কীভাবে ব্যবহার করবেন, এখানে ধাপে ধাপে বলা আছে। চাইলে পরিবারের কাউকে সঙ্গে নিয়ে পড়ুন।',
+    emergency: 'জরুরি অবস্থায় সরাসরি ৯৯৯-এ ফোন করুন। বাজান জরুরি সেবা দিতে পারেন না।',
     onThisPage: 'এই পাতায় যা আছে',
     quickTitle: 'তিন ধাপে শুরু',
     quick: [
-      { title: '{start} চাপুন', text: 'ভাইজান কথা শুরু করা পর্যন্ত একটু অপেক্ষা করুন।' },
-      { title: 'স্বাভাবিকভাবে কথা বলুন', text: 'বাংলায় বা ইংরেজিতে গল্প করুন, প্রশ্ন করুন। ভাইজান কথা বলে উত্তর দেবেন।' },
+      { title: '{start} চাপুন', text: 'বাজান কথা শুরু করা পর্যন্ত একটু অপেক্ষা করুন।' },
+      { title: 'স্বাভাবিকভাবে কথা বলুন', text: 'বাংলায় বা ইংরেজিতে গল্প করুন, প্রশ্ন করুন। বাজান কথা বলে উত্তর দেবেন।' },
       { title: 'ফোন করার পরীক্ষা', text: '{help} চেপে নামটি দেখুন। {yesCall} চাপলে পরীক্ষামূলক কল শুরু হবে। আসলে কাউকে ফোন করা হবে না।' },
     ],
     sections: [
       {
         id: 'about',
-        title: 'ভাইজান কে?',
+        title: 'বাজান কে?',
         body: [
-          'ভাইজান কথা বলতে পারেন এমন একটি ডিজিটাল সহকারী। একা থাকেন এমন বয়স্ক মানুষদের সঙ্গ দেওয়ার জন্য তাঁকে তৈরি করা হয়েছে। ছোট ভাই বা নাতির সঙ্গে যেভাবে কথা বলেন, ভাইজানের সঙ্গেও সেভাবে বলুন — বাংলায়, ইংরেজিতে বা মিশিয়ে। তিনি কথা বলে উত্তর দেন।',
+          'বাজান কথা বলতে পারেন এমন একটি ডিজিটাল সহকারী। একা থাকেন এমন বয়স্ক মানুষদের সঙ্গ দেওয়ার জন্য তাঁকে তৈরি করা হয়েছে। ছোট ভাই বা নাতির সঙ্গে যেভাবে কথা বলেন, বাজানের সঙ্গেও সেভাবে বলুন — বাংলায়, ইংরেজিতে বা মিশিয়ে। তিনি কথা বলে উত্তর দেন।',
         ],
         lists: [
           {
-            title: 'ভাইজান যা পারেন',
+            title: 'বাজান যা পারেন',
             items: [
               'আপনার সঙ্গে গল্প করেন, সঙ্গ দেন।',
               'প্রোফাইলে লেখা তথ্য পড়ে শোনান — যেমন ওষুধের নাম ও খাওয়ার সময়, ঠিকানা, অ্যালার্জি।',
@@ -212,7 +212,7 @@ const bn = {
             ],
           },
           {
-            title: 'ভাইজান যা পারেন না',
+            title: 'বাজান যা পারেন না',
             items: [
               'চিকিৎসার পরামর্শ দেন না, ওষুধের ডোজও বদলান না। শুধু প্রোফাইলে লেখা তথ্য পড়ে শোনান।',
               'অ্যাম্বুলেন্স বা পুলিশ ডাকেন না। জরুরি হলে নিজে ৯৯৯-এ ফোন করুন।',
@@ -234,15 +234,15 @@ const bn = {
       },
       {
         id: 'talk',
-        title: 'ভাইজানের সঙ্গে কথা বলা',
-        body: ['কথা বলার তিনটি উপায় আছে। ভাইজান কথা বলে উত্তর দেন। আপনার ও ভাইজানের কথা {conversation} অংশে লেখা হিসেবে দেখা যায়।'],
+        title: 'বাজানের সঙ্গে কথা বলা',
+        body: ['কথা বলার তিনটি উপায় আছে। বাজান কথা বলে উত্তর দেন। আপনার ও বাজানের কথা {conversation} অংশে লেখা হিসেবে দেখা যায়।'],
         lists: [
           {
             title: 'সরাসরি কথা বলা',
             items: [
-              '{start} চাপুন, ভাইজান কথা শুরু করা পর্যন্ত অপেক্ষা করুন।',
-              'স্বাভাবিকভাবে কথা বলুন। আপনার কথা শেষ হলে ভাইজান নিজেই বুঝে উত্তর দেবেন — কিছু চাপতে হবে না।',
-              'ভাইজান কথা বলার সময় আপনি কিছু বললে তিনি থেমে আপনার কথা শোনেন।',
+              '{start} চাপুন, বাজান কথা শুরু করা পর্যন্ত অপেক্ষা করুন।',
+              'স্বাভাবিকভাবে কথা বলুন। আপনার কথা শেষ হলে বাজান নিজেই বুঝে উত্তর দেবেন — কিছু চাপতে হবে না।',
+              'বাজান কথা বলার সময় আপনি কিছু বললে তিনি থেমে আপনার কথা শোনেন।',
               'শেষ উত্তরটি আবার শুনতে {repeat} চাপুন।',
               'কথা শেষ হলে {stop} চাপুন। ৩ মিনিট কথা না হলে কথোপকথন নিজে থেকেই বন্ধ হয়।',
             ],
@@ -260,17 +260,17 @@ const bn = {
             ],
           },
           {
-            title: 'ভাইজানের ছবির চারপাশের চিহ্নের অর্থ',
+            title: 'বাজানের ছবির চারপাশের চিহ্নের অর্থ',
             items: [
-              'সবুজ বৃত্ত ধীরে ধীরে নড়ছে — ভাইজান শুনছেন।',
-              'তিনটি বিন্দু — ভাইজান ভাবছেন।',
-              'স্থির সবুজ — ভাইজান বলছেন, অথবা আপনার বার্তার অপেক্ষায় আছেন।',
+              'সবুজ বৃত্ত ধীরে ধীরে নড়ছে — বাজান শুনছেন।',
+              'তিনটি বিন্দু — বাজান ভাবছেন।',
+              'স্থির সবুজ — বাজান বলছেন, অথবা আপনার বার্তার অপেক্ষায় আছেন।',
               'বৃত্ত ঘুরছে — সংযোগ হচ্ছে।',
               'লাল বৃত্ত — আপনার ভয়েস মেসেজ রেকর্ড হচ্ছে।',
             ],
           },
         ],
-        note: 'ছবির নিচের লেখা দেখে বুঝতে পারবেন ভাইজান এখন কী করছেন।',
+        note: 'ছবির নিচের লেখা দেখে বুঝতে পারবেন বাজান এখন কী করছেন।',
       },
       {
         id: 'family',
@@ -284,7 +284,7 @@ const bn = {
           {
             title: 'জেনে রাখুন',
             items: [
-              'মুখেও বলতে পারেন, যেমন “আমার ছেলেকে ফোন করুন”। পরীক্ষামূলক অনুরোধ পাঠানোর আগে ভাইজান আপনার অনুমতি চান।',
+              'মুখেও বলতে পারেন, যেমন “আমার ছেলেকে ফোন করুন”। পরীক্ষামূলক অনুরোধ পাঠানোর আগে বাজান আপনার অনুমতি চান।',
               'এই সংস্করণে “ফোন ধরেছেন” লেখাটিও পরীক্ষার অংশ। কেউ আসলে ফোন ধরেননি, সাহায্য আসার নিশ্চয়তাও নেই।',
               'সত্যি যোগাযোগ করতে হলে নিজে পরিবারের সদস্যকে ফোন করুন। জরুরি হলে ৯৯৯-এ ফোন করুন।',
             ],
@@ -297,16 +297,16 @@ const bn = {
         title: 'ভাষা',
         body: [
           'ওপরের **বাংলা** / **English** বোতাম শুধু পর্দার লেখার ভাষা বদলায়।',
-          'ভাইজান কোন ভাষায় কথা বলবেন, তা প্রোফাইলে ঠিক করা যায় — {speechScale.0} থেকে {speechScale.4} পর্যন্ত পাঁচটি ধাপ। {speechScale.2} বাছলে আপনি যে ভাষায় বলবেন, ভাইজানও সেই ভাষায় উত্তর দেবেন।',
-          '{speechScale.1} বা {speechScale.3} বাছলে ভাইজান সাধারণত সেই ভাষায় কথা বলেন। অন্য ভাষায় পুরো বাক্য বললে ভাষা বদলাতে পারেন। শুধু “OK” বা “ধন্যবাদ” বললে ভাষা বদলানোর কথা নয়।',
-          'ভাইজানকে বাংলা ও ইংরেজিতে উত্তর দেওয়ার নির্দেশ দেওয়া হয়েছে। ভুল ভাষায় উত্তর দিলে কোন ভাষায় শুনতে চান, তা বলুন।',
+          'বাজান কোন ভাষায় কথা বলবেন, তা প্রোফাইলে ঠিক করা যায় — {speechScale.0} থেকে {speechScale.4} পর্যন্ত পাঁচটি ধাপ। {speechScale.2} বাছলে আপনি যে ভাষায় বলবেন, বাজানও সেই ভাষায় উত্তর দেবেন।',
+          '{speechScale.1} বা {speechScale.3} বাছলে বাজান সাধারণত সেই ভাষায় কথা বলেন। অন্য ভাষায় পুরো বাক্য বললে ভাষা বদলাতে পারেন। শুধু “OK” বা “ধন্যবাদ” বললে ভাষা বদলানোর কথা নয়।',
+          'বাজানকে বাংলা ও ইংরেজিতে উত্তর দেওয়ার নির্দেশ দেওয়া হয়েছে। ভুল ভাষায় উত্তর দিলে কোন ভাষায় শুনতে চান, তা বলুন।',
         ],
       },
       {
         id: 'wake',
         title: 'ডেকে কথা শুরু করা',
         body: [
-          'Android ফোন বা কম্পিউটারে Chrome ব্যবহার করলে {wakeToggle} সুইচটি চালু করুন। এরপর “ভাইজান” বলে ডাকলে কথোপকথন শুরু হবে।',
+          'Android ফোন বা কম্পিউটারে Chrome ব্যবহার করলে {wakeToggle} সুইচটি চালু করুন। এরপর “বাজান” বলে ডাকলে কথোপকথন শুরু হবে।',
           'এটি চালু থাকলে আপনার ডাক শোনার জন্য মাইক্রোফোনের শব্দ Google-এ পাঠানো হয়। প্রয়োজন না হলে সুইচটি বন্ধ রাখুন।',
           'ফোনের পর্দা চালু রাখুন। পর্দা বন্ধ হলে Chrome আপনার ডাক শোনা বন্ধ করে দেয়।',
         ],
@@ -316,9 +316,9 @@ const bn = {
         id: 'profile',
         title: 'আপনার প্রোফাইল',
         body: [
-          'প্রোফাইলে আপনার নাম, সম্বোধন, ঠিকানা, রোগ, অ্যালার্জি, ওষুধ ও পরিবারের সদস্যের তথ্য থাকে। ভাইজান এসব তথ্য দেখে উত্তর দেন।',
+          'প্রোফাইলে আপনার নাম, সম্বোধন, ঠিকানা, রোগ, অ্যালার্জি, ওষুধ ও পরিবারের সদস্যের তথ্য থাকে। বাজান এসব তথ্য দেখে উত্তর দেন।',
           'শুরুর পাতায় {editProfile} চেপে তথ্য বদলাতে পারেন।',
-          'আপনার লেখা স্বাস্থ্যতথ্য এই অ্যাপ যাচাই করে না। ভাইজানকে লেখা তথ্য হুবহু পড়তে বলা হয়েছে, তবে ভুল হতে পারে। ওষুধের নাম ও ডোজ লিখিত তথ্যের সঙ্গে মিলিয়ে নিন। তিনি চিকিৎসার পরামর্শ দেন না।',
+          'আপনার লেখা স্বাস্থ্যতথ্য এই অ্যাপ যাচাই করে না। বাজানকে লেখা তথ্য হুবহু পড়তে বলা হয়েছে, তবে ভুল হতে পারে। ওষুধের নাম ও ডোজ লিখিত তথ্যের সঙ্গে মিলিয়ে নিন। তিনি চিকিৎসার পরামর্শ দেন না।',
         ],
       },
       {
@@ -327,7 +327,7 @@ const bn = {
         steps: [
           'Android ফোনে Chrome-এর ⋮ মেনু খুলে **Add to Home screen** (হোম স্ক্রিনে যোগ করুন) বাছুন।',
           'iPhone-এ Safari-এর শেয়ার বোতাম চেপে **Add to Home Screen** (হোম স্ক্রিনে যোগ করুন) বাছুন।',
-          'হোম স্ক্রিনে ভাইজানের ছবিসহ আইকন দেখা যাবে। সেটি চাপলে অ্যাপ খুলবে।',
+          'হোম স্ক্রিনে বাজানের ছবিসহ আইকন দেখা যাবে। সেটি চাপলে অ্যাপ খুলবে।',
         ],
       },
       {
@@ -335,11 +335,11 @@ const bn = {
         title: 'সমস্যা হলে',
         faq: [
           {
-            q: 'ভাইজান আমার কথা শুনছেন না',
+            q: 'বাজান আমার কথা শুনছেন না',
             a: 'ওয়েব ঠিকানার পাশের চিহ্নে চাপুন এবং মাইক্রোফোন ব্যবহারের অনুমতি দিন। মাইক্রোফোন ব্যবহার করছে এমন অন্য অ্যাপ বন্ধ করুন। তারপর আবার {start} চাপুন।',
           },
           {
-            q: 'ভাইজানের কথা শুনতে পাচ্ছি না',
+            q: 'বাজানের কথা শুনতে পাচ্ছি না',
             a: 'ফোন বা কম্পিউটারের শব্দের মাত্রা বাড়ান। {continueAudio} বোতাম দেখা গেলে সেটি চাপুন। ব্রাউজার শব্দ চালানো আটকে রাখলে এই বোতামটি দেখা যায়।',
           },
           {
@@ -348,7 +348,7 @@ const bn = {
           },
           {
             q: 'নিজে থেকেই থেমে গেল',
-            a: '৩ মিনিট কথা না হলে কথোপকথন নিজে থেকেই বন্ধ হয় এবং মাইক্রোফোন ছেড়ে দেওয়া হয়। আবার কথা বলতে {start} চাপুন। “ভাইজান” ডাকে চালু হওয়ার সুইচটি চালু থাকলে আপনার ডাক শোনার জন্য মাইক্রোফোন আবার চালু হবে।',
+            a: '৩ মিনিট কথা না হলে কথোপকথন নিজে থেকেই বন্ধ হয় এবং মাইক্রোফোন ছেড়ে দেওয়া হয়। আবার কথা বলতে {start} চাপুন। “বাজান” ডাকে চালু হওয়ার সুইচটি চালু থাকলে আপনার ডাক শোনার জন্য মাইক্রোফোন আবার চালু হবে।',
           },
           {
             q: '{help} চাপলে বলছে কেউ যোগ করা নেই',
@@ -373,8 +373,8 @@ const bn = {
               'উত্তর দেওয়ার জন্য আপনার বলা ও লেখা কথা এবং প্রোফাইলের তথ্য Google-এর Gemini সেবায় পাঠানো হয়।',
               'এই অ্যাপ কথোপকথনের লেখা সংরক্ষণ করে না। পাতাটি আবার লোড করলে এখানকার লেখা মুছে যায়। Google-এ পাঠানো তথ্যের ক্ষেত্রে তাদের সেবার তথ্য ব্যবহারের নিয়ম প্রযোজ্য।',
               'প্রোফাইলের তথ্য আপনার অ্যাকাউন্টে সংরক্ষিত থাকে। অ্যাপ প্রোফাইল থেকে পরিবারের সদস্যের ফোন নম্বর Gemini-তে পাঠায় না। কথায় বা বার্তায় নম্বরটি জানালে তা অবশ্য Gemini-তে যাবে।',
-              '“ভাইজান” ডাকে চালু হওয়ার সুবিধাটি চালু রাখলে আপনার ডাক শোনার জন্য শব্দ Google-এর আলাদা একটি কথাচেনার সেবায় পাঠানো হয়।',
-              'ভাইজান চিকিৎসার পরামর্শ বা জরুরি সেবা দিতে পারেন না। জরুরি হলে ৯৯৯-এ ফোন করুন।',
+              '“বাজান” ডাকে চালু হওয়ার সুবিধাটি চালু রাখলে আপনার ডাক শোনার জন্য শব্দ Google-এর আলাদা একটি কথাচেনার সেবায় পাঠানো হয়।',
+              'বাজান চিকিৎসার পরামর্শ বা জরুরি সেবা দিতে পারেন না। জরুরি হলে ৯৯৯-এ ফোন করুন।',
             ],
           },
         ],
@@ -388,8 +388,8 @@ export type Text = typeof bn
 
 // `Text` makes the compiler check that English has exactly the same entries as Bangla.
 const en: Text = {
-  title: 'Bhaijaan',
-  tagline: 'Chat and ask questions — Bhaijaan is here to listen.',
+  title: 'Bajan',
+  tagline: 'Chat and ask questions — Bajan is here to listen.',
 
   connecting: 'Connecting…',
   listening: 'Listening…',
@@ -405,7 +405,7 @@ const en: Text = {
   continueAudio: 'Tap to continue',
 
   conversation: 'Conversation',
-  transcriptEmpty: 'What you and Bhaijaan say will be written here.',
+  transcriptEmpty: 'What you and Bajan say will be written here.',
   you: 'You',
   voiceMessage: 'Voice message',
   typeLabel: 'Type a message',
@@ -414,7 +414,7 @@ const en: Text = {
   recording: (s: number, max: number) => `Recording… ${clock(s, max)}`,
   sendVoice: 'Send voice message',
   cancel: 'Cancel',
-  messageNote: 'Bhaijaan always answers out loud; the answer is written here too.',
+  messageNote: 'Bajan always answers out loud; the answer is written here too.',
 
   confirmCall: (who: string) => `Call ${who}?`,
   yesCall: 'Yes, call',
@@ -435,7 +435,7 @@ const en: Text = {
   unknown: 'Status unknown, checking… If needed, call your family member yourself, or 999 in an emergency.',
   reused: ' A call was just tried, so no new call was made; try again in a minute.',
 
-  wakeToggle: 'Listen for "Bhaijaan"',
+  wakeToggle: 'Listen for "Bajan"',
   wakeNote: 'While this is on, mic audio goes to Google to listen for the name; hearing it starts a conversation.',
 
   errors: {
@@ -448,12 +448,12 @@ const en: Text = {
     message_unsent: 'The connection dropped, so your last message may not have arrived. Send it again if no answer comes.',
     signed_out: 'You have been signed out. Reload the page and sign in again.',
     no_profile: 'No profile was found. Please reload the page.',
-    unavailable: 'Bhaijaan is not responding right now. Try again in a moment.',
+    unavailable: 'Bajan is not responding right now. Try again in a moment.',
     help_signed_out: 'You have been signed out. Reload the page and sign in again. If needed, call your family member yourself, or 999 in an emergency.',
     help_not_sent: 'The request could not be sent. If needed, call your family member yourself, or 999 in an emergency.',
     help_unsent: 'The request did not get through. Press Get help again. If needed, call your family member yourself, or 999 in an emergency.',
     no_caregiver: 'No family member has been added to call — add one under "Edit profile". In an emergency, call 999.',
-    wake_not_allowed: 'Please allow the microphone so Bhaijaan can listen for his name.',
+    wake_not_allowed: 'Please allow the microphone so Bajan can listen for his name.',
     wake_no_bangla: 'This browser cannot listen for Bangla.',
     wake_failed: 'Listening for the name does not work in this browser.',
   },
@@ -478,14 +478,14 @@ const en: Text = {
 
   setupTitle: 'Your profile',
   sections: { about: 'About you', health: 'Health and medicines' },
-  intro: 'Every field is optional — fill in only what you want. Bhaijaan answers from these details.',
+  intro: 'Every field is optional — fill in only what you want. Bajan answers from these details.',
   madeUp: 'This is a test version. Use made-up details instead of real personal or health information.',
   saveError: 'Could not save; please try again.',
   useSample: 'Start with the sample profile',
   speechScale: ['Bangla only', 'Bangla preferred', 'Mix (follow me)', 'English preferred', 'English only'],
   label: {
     name: 'Name to call you by',
-    speech: 'Which language Bhaijaan speaks',
+    speech: 'Which language Bajan speaks',
     formOfAddress: 'How to address you, e.g. Nanu, Chacha, Apa',
     address: 'Address',
     preferences: 'Preferences — one per line',
@@ -533,24 +533,24 @@ const en: Text = {
   idleHint: 'Press Start to talk',
   features: ['Talk in Bangla, English or a mix', 'Hear the medicines, address and other details in your profile', 'Try a simulated family call — no real phone rings'],
   guideNav: 'How to use',
-  guideLink: 'How to use Bhaijaan',
+  guideLink: 'How to use Bajan',
   guide: {
-    title: 'How to use Bhaijaan',
-    intro: 'Talking with Bhaijaan is simple. Everything is explained here step by step — read it together with a family member if you like.',
-    emergency: 'In an emergency, call 999 directly. Bhaijaan is not an emergency service.',
+    title: 'How to use Bajan',
+    intro: 'Talking with Bajan is simple. Everything is explained here step by step — read it together with a family member if you like.',
+    emergency: 'In an emergency, call 999 directly. Bajan is not an emergency service.',
     onThisPage: 'On this page',
     quickTitle: 'Start in three steps',
     quick: [
-      { title: 'Press {start}', text: 'Wait a moment for Bhaijaan to greet you.' },
+      { title: 'Press {start}', text: 'Wait a moment for Bajan to greet you.' },
       { title: 'Speak normally', text: 'Ask anything, in Bangla or English. He answers out loud.' },
       { title: 'Try a test call', text: 'Press {help}, check the name, then press {yesCall} to simulate a call. No real phone will ring.' },
     ],
     sections: [
       {
         id: 'about',
-        title: 'What is Bhaijaan?',
+        title: 'What is Bajan?',
         body: [
-          'Bhaijaan is a friendly voice companion for older adults who live alone. Talk to him the way you would talk to a younger brother or a grandson — in Bangla, English or a mix. He answers out loud.',
+          'Bajan is a friendly voice companion for older adults who live alone. Talk to him the way you would talk to a younger brother or a grandson — in Bangla, English or a mix. He answers out loud.',
         ],
         lists: [
           {
@@ -584,13 +584,13 @@ const en: Text = {
       },
       {
         id: 'talk',
-        title: 'Talking with Bhaijaan',
+        title: 'Talking with Bajan',
         body: ['There are three ways to talk. He always answers out loud, and both sides are written under {conversation}.'],
         lists: [
           {
             title: 'Live conversation',
             items: [
-              'Press {start} and wait for Bhaijaan to greet you.',
+              'Press {start} and wait for Bajan to greet you.',
               'Speak normally. When you finish, he notices and answers by himself — no need to press anything.',
               'If you speak while he is talking, he stops and listens.',
               'Press {repeat} to hear his last answer again.',
@@ -634,7 +634,7 @@ const en: Text = {
           {
             title: 'Good to know',
             items: [
-              'You can also ask by voice, for example "Call my son". Bhaijaan asks for your permission before sending the simulated request.',
+              'You can also ask by voice, for example "Call my son". Bajan asks for your permission before sending the simulated request.',
               'In this version, "Answered" is also simulated. Nobody actually answered, and it does not mean help is on the way.',
               'To reach someone, call your family member yourself — or 999 in an emergency.',
             ],
@@ -647,16 +647,16 @@ const en: Text = {
         title: 'Language',
         body: [
           'The **বাংলা** / **English** buttons at the top change only the words on the screen.',
-          'The language Bhaijaan speaks is set in your profile, in five steps from {speechScale.0} to {speechScale.4}. With {speechScale.2} he answers in whichever language you use.',
+          'The language Bajan speaks is set in your profile, in five steps from {speechScale.0} to {speechScale.4}. With {speechScale.2} he answers in whichever language you use.',
           'With {speechScale.1} or {speechScale.3}, he normally uses that language. A whole sentence in the other language can switch it; a brief "OK" or "thank you" should not.',
-          'Bhaijaan is instructed to answer in Bangla and English. If he uses the wrong language, tell him which one you want.',
+          'Bajan is instructed to answer in Bangla and English. If he uses the wrong language, tell him which one you want.',
         ],
       },
       {
         id: 'wake',
         title: 'Hands-free start',
         body: [
-          'In Chrome on Android or a computer, turn on {wakeToggle}. Then just say "ভাইজান" (Bhaijaan) and the conversation starts.',
+          'In Chrome on Android or a computer, turn on {wakeToggle}. Then just say "বাজান" (Bajan) and the conversation starts.',
           'While it is on, sound from the microphone goes to Google to listen for the name. Turn it off when you don’t need it.',
           'Keep the screen on: Chrome stops listening when the screen goes to sleep.',
         ],
@@ -666,9 +666,9 @@ const en: Text = {
         id: 'profile',
         title: 'Your profile',
         body: [
-          'Bhaijaan answers from your profile: your name and how to address you, your address, health conditions, allergies, medicines and your family member.',
+          'Bajan answers from your profile: your name and how to address you, your address, health conditions, allergies, medicines and your family member.',
           'Change it any time with the {editProfile} button on the home page.',
-          'The app does not verify the health details you enter. Bhaijaan is instructed to read them exactly, but mistakes are possible. Check medicine names and doses against the written details. He does not give medical advice.',
+          'The app does not verify the health details you enter. Bajan is instructed to read them exactly, but mistakes are possible. Check medicine names and doses against the written details. He does not give medical advice.',
         ],
       },
       {
@@ -677,7 +677,7 @@ const en: Text = {
         steps: [
           'Android (Chrome): open the ⋮ menu and choose **Add to Home screen**.',
           'iPhone (Safari): press the Share button and choose **Add to Home Screen**.',
-          'Bhaijaan’s face appears as an app icon, and opens full screen.',
+          'Bajan’s face appears as an app icon, and opens full screen.',
         ],
       },
       {
@@ -685,16 +685,16 @@ const en: Text = {
         title: 'If something goes wrong',
         faq: [
           {
-            q: 'Bhaijaan can’t hear me',
+            q: 'Bajan can’t hear me',
             a: 'Allow the microphone: tap the icon next to the web address, turn the microphone on, then press {start} again. Close other apps that may be using the microphone.',
           },
           {
-            q: 'I can’t hear Bhaijaan',
+            q: 'I can’t hear Bajan',
             a: 'Turn up the volume. If a {continueAudio} button appears, press it — the browser paused the sound.',
           },
           {
             q: 'It says {reconnecting}',
-            a: 'The connection dropped and Bhaijaan is trying to reconnect. Wait a few seconds and check your internet. If it does not recover, press {stop} if shown, then {start}.',
+            a: 'The connection dropped and Bajan is trying to reconnect. Wait a few seconds and check your internet. If it does not recover, press {stop} if shown, then {start}.',
           },
           {
             q: 'It stopped by itself',
@@ -724,7 +724,7 @@ const en: Text = {
               'This app does not save the transcript; reloading the page clears the text shown here. Data sent to Google is subject to that service’s data policies.',
               'Your profile is saved in your account. The app excludes your family member’s phone number when sending the profile to Gemini. A number you say or type in a message is still sent.',
               'When the wake-word switch is on, microphone audio also goes to Google’s separate speech recognition service to listen for his name.',
-              'Bhaijaan does not give medical advice and is not an emergency service. In an emergency, call 999.',
+              'Bajan does not give medical advice and is not an emergency service. In an emergency, call 999.',
             ],
           },
         ],
