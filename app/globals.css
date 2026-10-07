@@ -182,8 +182,9 @@ a {
   border-color: var(--brand);
 }
 
-/* Phones: the link keeps only its icon (its words stay for screen readers); the home page links here too. */
-@media (max-width: 34em) {
+/* Phones and narrow windows: the links keep only their icons (their words stay for screen readers); the home
+   page links to both too. With words, guide, profile and language need about 43em. */
+@media (max-width: 44em) {
   .nav-link {
     justify-content: center;
     padding: 0;
@@ -229,7 +230,7 @@ a {
   background: var(--brand);
 }
 
-/* Phones: a tighter header so face, guide and language fit on one row down to 320px wide. */
+/* Phones: a tighter header so face, guide, profile and language fit on one row down to 320px wide. */
 @media (max-width: 30em) {
   .header-inner {
     padding-inline: 0.75rem;
@@ -241,7 +242,7 @@ a {
   }
 }
 
-@media (max-width: 26em) {
+@media (max-width: 28em) {
   .brand-name {
     position: absolute;
     width: 1px;
@@ -249,6 +250,17 @@ a {
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+}
+
+@media (max-width: 22em) {
+  .header-inner {
+    gap: 0.25rem;
+    padding-inline: 0.5rem;
+  }
+
+  .lang-toggle button {
+    padding-inline: 0.4rem;
   }
 }
 
