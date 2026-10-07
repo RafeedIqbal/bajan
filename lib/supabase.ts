@@ -26,9 +26,9 @@ export async function createClient() {
   )
 }
 
-// Gate shared by the JSON API routes: same-origin request, signed-in user, a saved profile.
-// Returns the client and the caller's profile data, or the Response to send instead.
-export async function requireProfile(request: Request) {
+// Gate shared by the JSON API routes: same-origin request and a signed-in user.
+// Returns the client, or the Response to send instead.
+export async function requireUser(request: Request) {
   // Cookie-authenticated POSTs need a CSRF check of their own (Next.js only checks server actions).
   // Browsers without Fetch Metadata (Safari < 16.4) still send Origin on POST.
   const site = request.headers.get('sec-fetch-site')
@@ -40,6 +40,14 @@ export async function requireProfile(request: Request) {
   // A network blip is not "signed out": answer 503 so the client retries instead of giving up.
   if (isAuthRetryableFetchError(authError)) return Response.json({ error: 'unavailable' }, { status: 503 })
   if (!auth?.claims) return Response.json({ error: 'unauthorized' }, { status: 401 })
+  return { supabase }
+}
+
+// requireUser, plus a saved profile. Returns the client and the caller's profile data.
+export async function requireProfile(request: Request) {
+  const gate = await requireUser(request)
+  if (gate instanceof Response) return gate
+  const { supabase } = gate
 
   // RLS returns only the caller's own profile.
   const { data: profile, error } = await supabase.from('profiles').select('data').maybeSingle()

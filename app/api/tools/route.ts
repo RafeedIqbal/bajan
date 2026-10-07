@@ -1,3 +1,4 @@
+import { ageFrom, cleanMedications, contactsForModel, contactsOf } from '@/lib/profile'
 import { requireProfile } from '@/lib/supabase'
 
 type HelpRow = { idempotency_key: string; status: string; sim_outcome: string; caregiver_name: string; created_at: string }
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
     return Response.json({ error: 'bad_request' }, { status: 400 })
   }
 
-  // The caregiver's number never goes to Gemini. Profiles may have no caregiver (onboarding is optional).
+  // No phone number (caregiver or contact) ever goes to Gemini. Profiles may have no caregiver (onboarding is optional).
   const caregiver = profile.caregiver?.name
     ? { name: String(profile.caregiver.name), relationship: String(profile.caregiver.relationship ?? '') }
     : null
@@ -27,7 +28,13 @@ export async function POST(request: Request) {
   switch (body.name) {
     case 'get_profile': {
       const { language: _language, ...rest } = profile // older profiles stored a fixed "বাংলা" here
-      return Response.json({ ...rest, caregiver })
+      return Response.json({
+        ...rest,
+        age: ageFrom(profile.birth_year), // Gemini should not do date arithmetic
+        medications: cleanMedications(profile.medications), // also reads old one-line entries
+        contacts: contactsForModel(contactsOf(profile)), // without phone numbers
+        caregiver,
+      })
     }
 
     case 'request_caregiver_call': {

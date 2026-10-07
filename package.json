@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --test lib/checks.test.ts",
+    "test": "node --test lib/checks.test.ts lib/profile.test.ts",
     "test:db": "npx -y supabase@2.119.0 test db"
   },
   "dependencies": {

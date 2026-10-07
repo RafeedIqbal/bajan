@@ -5,8 +5,8 @@ A Bangla voice assistant proof of concept for older adults who live alone. It is
 
 - holds a spoken conversation (Gemini Live, `gemini-3.8-live`) in Bangla, English or a mix: Bajan replies in whatever language he's spoken to
 - also takes typed messages and recorded voice messages, always answers out loud, and writes both sides on screen
-- answers from a small structured profile that each tester fills in when they first sign in
-- requests a call to one enrolled caregiver and shows the real status
+- answers from a structured profile that each tester fills in when they first sign in (age, routine and needs, conditions, allergies, medicines, contacts); conditions, allergies and medicines can also be read from a photo or PDF of a prescription (`gemini-3.8-flash`), which the tester checks before anything is added
+- requests a call to the one contact marked "call for help" and shows the real status
 
 Caregiver calls are **simulated**: no phone rings. Testers are asked to use made-up profile details.
 
@@ -134,7 +134,8 @@ For wake-word tests, set the phone's screen timeout to its maximum. Chrome stops
 
 ## Data and scope
 
-- Testers type their own profile, and the form asks for made-up details. Medical details entered there are labelled "self-reported, not verified", and the assistant reads them back as such. Gemini receives the profile through `get_profile` (name, address, conditions, allergies, medications, caregiver name and relationship), but never the caregiver's phone number.
+- Testers type their own profile, and the form asks for made-up details. Medical details entered there are labelled "self-reported, not verified" (or "read from a document, checked by the user, not verified" when they came from a photo), and the assistant reads them back as such. Gemini receives the profile through `get_profile` (everything on it, including contacts' names, roles and details), but never a phone number.
+- A prescription or report photo goes to `/api/extract`, which sends it to Gemini once and returns what it read. The file is never stored or logged; only the items the tester ticks reach the profile. Images are shrunk to 2000px JPEG in the browser first (which also drops EXIF location), and uploads are capped at 4 MB.
 - Typed messages and voice messages go to Gemini like speech does. The transcript is shown on screen only: it is not saved, and a reload clears it.
 - With the wake-word toggle on, Chrome streams mic audio to Google's speech service to listen for the name. This is a separate data flow from Gemini, and it is opt-in.
 - The assistant offers companionship, reads back recorded information, and requests a caregiver call. It gives no medical advice and does no triage.

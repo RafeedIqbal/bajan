@@ -467,6 +467,8 @@ input[type='email'],
 input[type='password'],
 input[type='text'],
 input[type='tel'],
+input[type='time'],
+select,
 textarea {
   display: block;
   width: 100%;
@@ -483,11 +485,13 @@ textarea {
 }
 
 input:hover,
+select:hover,
 textarea:hover {
   border-color: var(--ink);
 }
 
 input:focus,
+select:focus,
 textarea:focus {
   border-color: var(--brand);
   box-shadow: 0 0 0 4px var(--brand-soft);
@@ -584,6 +588,283 @@ input.switch:checked {
 
 input.switch:checked::before {
   transform: translateX(1.4rem);
+}
+
+/* ---------- profile editors ---------- */
+.label {
+  display: block;
+  font-weight: 600;
+}
+
+/* A group of related fields inside a card (needs, routine, a medicine's times), titled by its legend. */
+fieldset.choice {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+fieldset.choice > legend {
+  margin-bottom: 0.4rem;
+  padding: 0;
+  font-weight: 600;
+}
+
+/* A titled part of a card (needs, routine), set off from the fields above it. */
+fieldset.sub {
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+fieldset.sub > legend {
+  float: left; /* inside the box, below the divider */
+  width: 100%;
+  margin-bottom: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* Routine times are short: more of them per row. */
+.fields-2.times {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+}
+
+/* Chips: one per item, each with its own remove button. */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding-left: 1rem;
+  font-weight: 600;
+  background: var(--brand-soft);
+  border: 2px solid var(--brand);
+  border-radius: 999px;
+}
+
+.chip > span {
+  padding-block: 0.35rem;
+  overflow-wrap: anywhere;
+}
+
+button.chip-remove {
+  flex: none;
+  width: 48px;
+  min-height: 48px;
+  padding: 0;
+  color: var(--brand);
+  background: transparent;
+  border-color: transparent;
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+.add-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.add-row input {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+}
+
+.add-row button {
+  flex: none;
+  min-height: 56px;
+  padding-inline: 1rem;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.suggestions .hint {
+  width: 100%;
+}
+
+button.suggestion {
+  gap: 0.35rem;
+  min-height: 48px;
+  padding: 0.3rem 0.9rem;
+  border-style: dashed;
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+button.suggestion[aria-pressed='true'] {
+  color: var(--brand);
+  background: var(--brand-soft);
+  border-style: solid;
+  border-color: var(--brand);
+}
+
+/* One card per medicine or contact, inside the section's card. */
+.item-rows {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.item-row {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  background: var(--bg);
+  border: 2px solid var(--line-soft);
+  border-radius: var(--r-md);
+}
+
+.item-row > legend {
+  float: left; /* inside the box, as in fieldset.card */
+  width: 100%;
+  padding: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+/* The contact Bajan calls for help. */
+.item-row[data-chosen] {
+  border-color: var(--brand);
+}
+
+.item-row button.remove {
+  justify-self: start;
+  padding-inline: 0.25rem;
+}
+
+/* Checkboxes and radios drawn as large pills: the native input sits invisibly on top, so tapping,
+   keyboard and screen readers work as usual. A tick shows the choice without relying on colour. */
+.toggle-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.toggle-pills label {
+  position: relative;
+}
+
+.toggle-pills input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.toggle-pills span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 48px;
+  padding: 0.4rem 1rem;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.toggle-pills label:hover span {
+  border-color: var(--ink);
+}
+
+.toggle-pills input:checked + span {
+  color: #fff;
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.toggle-pills input:checked + span::before {
+  content: '✓';
+}
+
+.toggle-pills input:focus-visible + span {
+  outline: 4px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 48px;
+  cursor: pointer;
+}
+
+.check-row input {
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin: 0;
+  accent-color: var(--brand);
+}
+
+/* Reading a prescription or report. Empty status lines (kept so they can announce) take no space. */
+.import {
+  padding: 1rem;
+  background: var(--brand-soft);
+  border: 2px dashed var(--brand);
+  border-radius: var(--r-md);
+}
+
+.import > * + *:not(:empty) {
+  margin-top: 0.6rem;
+}
+
+.import > .label {
+  font-weight: 700;
+}
+
+.import-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.import-review {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--surface);
+  border-radius: var(--r-sm);
+}
+
+.import-review .check-row {
+  font-weight: 400;
+}
+
+.import-review .pill {
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+@media (forced-colors: active) {
+  .toggle-pills input:checked + span,
+  .item-row[data-chosen] {
+    border-color: Highlight;
+  }
 }
 
 /* ---------- dialog ---------- */

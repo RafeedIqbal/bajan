@@ -123,3 +123,29 @@ export const CheckIcon = () => (
     <path d="m5 12.5 4.5 4.5L19 7.5" />
   </Icon>
 )
+
+export const PlusIcon = () => (
+  <Icon>
+    <path d="M12 5v14M5 12h14" />
+  </Icon>
+)
+
+export const CameraIcon = () => (
+  <Icon>
+    <path d="M3.5 8.5h3.5l2-3h6l2 3h3.5v11h-17z" />
+    <circle cx="12" cy="13.5" r="3.5" />
+  </Icon>
+)
+
+export const FileIcon = () => (
+  <Icon>
+    <path d="M14 3H6v18h12V7z" />
+    <path d="M14 3v4h4M9 12h6M9 16h6" />
+  </Icon>
+)
+
+export const TrashIcon = () => (
+  <Icon>
+    <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+  </Icon>
+)

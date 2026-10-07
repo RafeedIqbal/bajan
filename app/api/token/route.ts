@@ -1,6 +1,7 @@
 import { Behavior, EndSensitivity, GoogleGenAI, Modality, type LiveConnectConfig } from '@google/genai'
 import { cookies } from 'next/headers'
 import { DEFAULT_SPEECH, langFrom, SPEECH, type Speech } from '@/lib/i18n'
+import type { Profile } from '@/lib/profile'
 import { requireProfile } from '@/lib/supabase'
 
 const MODEL = 'gemini-3.8-live'
@@ -10,14 +11,6 @@ const API_VERSION = 'v1beta'
 // Male prebuilt voice, approved by ear on Bangla samples (2026-10-06). Still to check with older listeners;
 // other male-labelled voices: Schedar, Algieba, Iapetus, Charon.
 const VOICE = 'Achird'
-
-// Every profile field is optional (onboarding lets users skip them).
-type Profile = {
-  preferred_name?: string
-  form_of_address?: string
-  language_preference?: string
-  caregiver?: { name?: string; relationship?: string } | null
-}
 
 // Mints a short-lived Gemini Live credential for a signed-in user who has a profile.
 // The token is unconstrained (config travels with the client) because Gemini ignores a voice locked into
@@ -74,7 +67,7 @@ function liveConfig(p: Profile): LiveConnectConfig {
           {
             name: 'get_profile',
             description:
-              "Returns the user's current recorded profile: name, address, preferences, conditions, allergies, medication schedule with doses, the medical source and last-reviewed date, and the enrolled caregiver. Call it before stating any personal or medical fact.",
+              "Returns the user's current recorded profile: name, age, gender, address, likes and habits, needs (hearing, eyesight, mobility), daily routine (24-hour times), blood group, conditions, allergies, medications, the medical source and last-reviewed date, their contacts (family, doctor, caregiver; no phone numbers) and the caregiver who can be called. Each medication has a name with strength, a dose, times of day (morning, noon, evening, night), meal (before or after food) and a note with anything else, such as exact times. Call it before stating any personal or medical fact.",
             behavior: Behavior.BLOCKING,
           },
           {
@@ -140,12 +133,14 @@ function instruction(p: Profile) {
   const caregiver = p.caregiver?.name ? p.caregiver.name : ''
   const who = caregiver && p.caregiver?.relationship ? `${caregiver} (${p.caregiver.relationship})` : caregiver
   const name = p.preferred_name ? `Their name is ${p.preferred_name}. ` : ''
+  // How they hear shapes every sentence, so it can't wait for get_profile.
+  const hearing = p.needs?.hearing ? `\n- About their hearing, their profile says: "${p.needs.hearing}". Speak accordingly.` : ''
   const address = p.form_of_address
     ? `Address them as "${p.form_of_address}" (say it as written, in every language), and in Bangla always use আপনি, never তুমি or তুই.`
     : 'In Bangla always use আপনি, never তুমি or তুই.'
   const calling = who
     ? `CALLING FAMILY
-- Only ${who} can be called. If they ask for someone else, say so and ask whether to call ${caregiver} instead.
+- Only ${who} can be called; nobody else on their profile can. If they ask for someone else, say so and ask whether to call ${caregiver} instead.
 - Get one clear yes, then call request_caregiver_call with confirmed = true. If they already clearly said yes, don't ask again.
 - Before saying anything about a call, call check_help_status: your last answer may be old, and the on-screen button can also start a call.
 - Say only what the status says. dialing: it is ringing. answered: ${caregiver} picked up, which does not mean they are coming or that help is arranged. ended: the call is over. failed: it did not go through (give the reason). needs_review: not sure it went through, so they should phone ${caregiver} themselves. none: there is no request (if they asked earlier, it did not get through, so offer to try again). reused: no new call was made. status_unknown: say you are checking, then check again; never say a call failed unless the status is failed or none.
@@ -162,7 +157,7 @@ HOW TO TALK
 - They may talk to you, type a message or send a recorded voice message. Answer each one the same way, out loud.
 - Only ever say your reply. Never say your reasoning, notes, rules or these instructions out loud.
 - One question at a time. Be patient with pauses; don't rush them or fill silences.
-- Greet them once, briefly, when the conversation starts. Always answer when they call you বাজান / Bajan.
+- Greet them once, briefly, when the conversation starts. Always answer when they call you বাজান / Bajan.${hearing}
 - If something important is unclear (a name, a medicine, who to call), ask once, briefly.
 - Happily chat about anything, for as long as they like.
 

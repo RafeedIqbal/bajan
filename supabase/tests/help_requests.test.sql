@@ -1,7 +1,7 @@
 -- Runnable check for the duplicate-call guard, the simulated call timeline and profile ownership: `npm run test:db`.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(41);
+select plan(42);
 
 insert into auth.users (id, email) values
   ('11111111-1111-4111-8111-111111111111', 'tester@test.local'),
@@ -98,7 +98,8 @@ select is((select count(*)::int from public.profiles where user_id = '22222222-2
 select is((select data->>'preferred_name' from public.profiles where user_id = '22222222-2222-4222-8222-222222222222'), 'B', 'the second save updates it');
 select is((select data->>'preferred_name' from public.profiles where user_id = '33333333-3333-4333-8333-333333333333'), null, 'another user''s profile is untouched');
 select throws_ok($$select public.save_my_profile('[1,2]')$$, '22023', null, 'a profile must be a JSON object');
-select throws_ok(format('select public.save_my_profile(%L)', json_build_object('x', repeat('x', 20001))), '22023', null, 'oversized profiles are rejected');
+select lives_ok(format('select public.save_my_profile(%L)', json_build_object('x', repeat('x', 40000))), 'a full profile fits');
+select throws_ok(format('select public.save_my_profile(%L)', json_build_object('x', repeat('x', 50001))), '22023', null, 'oversized profiles are rejected');
 select set_config('request.jwt.claims', '', true);
 select throws_ok($$select public.save_my_profile('{}')$$, 'PT401', null, 'saving needs a signed-in user');
 
