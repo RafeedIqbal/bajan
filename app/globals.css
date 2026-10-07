@@ -525,7 +525,7 @@ fieldset.card > legend {
 /* Short fields side by side when there is room. */
 .fields-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
   gap: 0.85rem;
 }
 
@@ -1219,7 +1219,7 @@ dd ul {
 
 .quick-steps {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
   gap: 0.85rem;
   margin: 0;
   padding: 0;

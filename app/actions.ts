@@ -87,7 +87,7 @@ const SAMPLE_PROFILE = {
   conditions: ['উচ্চ রক্তচাপ', 'টাইপ ২ ডায়াবেটিস'],
   allergies: ['পেনিসিলিন'],
   medications: ['Amlodipine 5 mg — ১টি ট্যাবলেট — সকাল ৮টা', 'Metformin 500 mg — ১টি ট্যাবলেট — সকাল ৮টা ও রাত ৮টা'],
-  medical_source: 'কাল্পনিক নমুনা তথ্য — আসল কারো নয় (synthetic sample)',
+  medical_source: 'বানানো নমুনা তথ্য — কোনো বাস্তব ব্যক্তির তথ্য নয় (synthetic sample)',
   medical_reviewed_on: '2026-10-01',
   caregiver: { name: 'করিম', relationship: 'ছেলে', phone: '+8801700000000' },
 }
@@ -138,7 +138,7 @@ export async function saveProfile(form: FormData) {
   const old = current?.data
   const same = old && JSON.stringify([old.conditions, old.allergies, old.medications]) === JSON.stringify(Object.values(medical))
 
-  // A relationship or a number alone still names someone to call ("ছেলে-কে ফোন করবো?").
+  // A relationship or a number alone still names someone to call ("ছেলে-কে ফোন করব?").
   const phone = text('caregiver_phone', 30)
   const relationship = text('caregiver_relationship')
   const name = text('caregiver_name')

@@ -29,6 +29,8 @@ On Android, Chrome's **Add to Home screen** installs it with Bhaijaan's face as 
 
 **How to use** (ব্যবহারের নিয়ম) in the header, and on the home and sign-in pages, opens a step-by-step guide at `/guide`: the three ways to talk, calling family, language settings, the wake word, installing on a phone, troubleshooting and privacy. It is public, so testers can read it before signing in. The guide quotes on-screen labels from `lib/i18n.ts` (`{start}` → the Start button's words), and `npm test` checks each one exists.
 
+The [Bangla UI audit](docs/Bangla_UI_Audit.md) records wording decisions across the interface and guide, including the simulated-call and privacy clarifications.
+
 The layout adapts to the screen: one column on phones (avatar, Start, Get help and Repeat fit the first screen), and on computers the avatar and controls sit beside the conversation.
 
 Every page has **বাংলা / English** buttons at the top. They switch the on-screen text only (remembered in a cookie). Everyone, demo users included, can change their profile with the **Edit profile** button on the home page.
@@ -196,4 +198,3 @@ Bhaijaan's face was made with Higgsfield on 2026-10-07, for 36 credits in total.
 - **Loops** (`public/avatar/idle.mp4`, `public/avatar/talking.mp4`): `minimax_h3_max`, 1:1, 5 s, 768p, with the still as both start and end frame, so each loop joins seamlessly and rests on the still. 12.5 credits each. Jobs: idle `456c6750-5afa-4ed4-ab5e-2a3955bee58f` ("gentle breathing, one natural slow blink, a very slight warm head tilt … mouth closed"), talking `c20efd8f-771a-4916-af79-644de55e4f80` ("speaks warmly … natural mouth movement, small friendly nods").
 - **Processing:** `ffmpeg -an -vf scale=480:480:flags=lanczos -c:v libx264 -crf 21 -preset slow -pix_fmt yuv420p -movflags +faststart` (178 KB and 251 KB). The still is converted with `cwebp -q 82` at 512 px. The icons are face crops of the 2048 px still: `app/icon.png` 48 px, `app/apple-icon.png` 180 px, and `public/icon-192.png`, `icon-512.png` and `icon-maskable-512.png`.
 - **Behaviour** (`app/avatar.tsx`): the talking loop plays while he speaks. Otherwise the idle loop plays once and stops on the still, so nothing moves for long. Reduced motion or Data Saver shows only the still.
-
